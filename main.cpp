@@ -113,6 +113,10 @@ void insertRow() {
 
 void viewSheetCSV() {
     cout << "-------------------------------------------\n";
-    cout << "View Attendance Sheet (CSV Mode)\n";
+    cout << "     View Attendance Sheet (CSV Mode)\n";
     cout << "-------------------------------------------\n";
+
+    for (int i = 0; i < numColumns; i++){
+        cout << columnNames[i] << ", " ;
+    }
 }
