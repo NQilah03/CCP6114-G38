@@ -20,16 +20,60 @@ void createSheet();
 void insertRow();
 void viewSheetCSV();
 bool isValidInt(string value);
+void MainMenu();
 
 int main()
 {
+    int choice;
+
     cout << "===========================================\n";
     cout << "   STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
     cout << "===========================================\n\n";
 
-    createSheet();
-    insertRow();
-    viewSheetCSV();
+    //createSheet();
+    //insertRow();
+    //viewSheetCSV();
+    do
+    {
+        MainMenu();
+        cout << "Please Enter Your Choice\n";
+        cin >> choice;
+
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Error: Invalid input. Please enter a valid number.\n\n";
+            continue;
+        }
+        cin.ignore();
+
+        switch (choice)
+        {
+        case 1:
+            createSheet();
+            break;
+
+        case 2:
+            insertRow();
+            break;
+
+        case 3:
+            viewSheetCSV();
+            break;
+
+        case 4:
+            cout << "Exiting program...\n";
+            break;
+
+        default:
+            cout << "Error: Invalid menu choice. Please try again.\n\n";
+        }
+
+    }
+    while (choice != 4);
+
+    return 0;
 }
 
 void createSheet() {
@@ -76,7 +120,7 @@ void insertRow() {
     string input;
 
     while (true) {
-        cout << "-------------------------------------------\n";
+        cout << "\n-------------------------------------------\n";
         cout << "Insert New Attendance Row\n";
         cout << "-------------------------------------------\n";
 
@@ -86,17 +130,21 @@ void insertRow() {
         }
 
         for (int col = 0; col < numColumns; col++) {
-            cout << "Enter " << columnNames[col] << ": ";
-            getline(cin, input);
+            while (true){
+                cout << "Enter " << columnNames[col] << ": ";
+                getline(cin, input);
 
-            if (columnTypes[col] == "INT") {
-                if (!isValidInt(input)) {
-                    cout << "Error: Invalid INT value. Please enter a number.\n";
-                    return;
+                if (columnTypes[col] == "INT") {
+                    if (!isValidInt(input)) {
+                        cout << "Error: Invalid INT value. Please enter a number.\n";
+                        continue;
+                    }
                 }
-            }
 
-            sheetData[numRows][col] = input;
+
+                sheetData[numRows][col] = input;
+                break;
+            }
         }
 
         numRows++;
@@ -112,11 +160,22 @@ void insertRow() {
 }
 
 void viewSheetCSV() {
-    cout << "-------------------------------------------\n";
+    cout << "\n-------------------------------------------\n";
     cout << "     View Attendance Sheet (CSV Mode)\n";
     cout << "-------------------------------------------\n";
 
     for (int i = 0; i < numColumns; i++){
         cout << columnNames[i] << ", " ;
     }
+}
+
+void MainMenu()
+{
+    cout << "\n-------------------------------------------\n";
+    cout << "Main Menu\n";
+    cout << "-------------------------------------------\n";
+    cout << "1. Create Attendance Sheet\n";
+    cout << "2. Insert Attendance Row\n";
+    cout << "3. View Attendance Sheet (CSV)\n";
+    cout << "4. Exit\n";
 }
