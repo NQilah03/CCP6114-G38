@@ -86,8 +86,14 @@ void createSheet() {
         cout << "Define number of columns (max 10): ";
         cin >> numColumns;
 
-        if (numColumns < 1 || numColumns > MAX_COLUMNS) {
-            cout << "Invalid INT value. Please enter a value between 1 and " << MAX_COLUMNS << "." << endl;
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Invalid INT value." << endl;
+            numColumns = 0;
+        } 
+        else if (numColumns < 1 || numColumns > MAX_COLUMNS) {
+            cout << "Invalid INT value. Please enter an INT value between 1 and " << MAX_COLUMNS << "." << endl;
         }
     } while (numColumns < 1 || numColumns > MAX_COLUMNS);
 
@@ -98,8 +104,15 @@ void createSheet() {
         cout << "Enter column " << (i + 1) << " name: ";
         getline(cin, columnNames[i]);
 
-        cout << "Enter column " << (i + 1) << " type (INT or TEXT): ";
-        getline(cin, columnTypes[i]);
+        do {
+            cout << "Enter column " << (i + 1) << " type (INT or TEXT): ";
+            getline(cin, columnTypes[i]);
+
+            if (columnTypes[i] != "INT" && columnTypes[i] != "TEXT") {
+                cout << "Invalid type. Please enter INT or TEXT." << endl;
+            }
+        } while (columnTypes[i] != "INT" && columnTypes[i] != "TEXT");
+
     }
 
     cout << "Sheet structure created successfully." << endl << endl;
