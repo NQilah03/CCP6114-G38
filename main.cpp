@@ -23,9 +23,9 @@ bool isValidInt(string value);
 
 int main()
 {
-    cout << "===========================================\n";
-    cout << "   STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
-    cout << "===========================================\n\n";
+    cout << "============================================\n";
+    cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
+    cout << "============================================\n\n";
 
     createSheet();
     insertRow();
@@ -117,6 +117,20 @@ void viewSheetCSV() {
     cout << "-------------------------------------------\n";
 
     for (int i = 0; i < numColumns; i++){
-        cout << columnNames[i] << ", " ;
+        cout << columnNames[i];
+        if (i != (numColumns - 1)){
+            cout << ", ";
+        }
+    }
+    cout << endl;
+
+    for (int row = 0; row < numRows; row++){
+        for (int column = 0; column < numColumns; column++){
+            cout << sheetData[row][column];
+            if (column != (numColumns - 1)){
+                cout << ", ";
+            }
+        }
+        cout << endl;
     }
 }
