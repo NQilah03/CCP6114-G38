@@ -89,7 +89,7 @@ void insertRow() {
             cout << "Enter " << columnNames[col] << ": ";
             getline(cin, input);
 
-            if (columnTypes[col] == "INT") {
+            if (columnTypes[col] == "INT") {Ive
                 if (!isValidInt(input)) {
                     cout << "Error: Invalid INT value. Please enter a number.\n";
                     return;
