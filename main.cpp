@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <cctype>
 using namespace std;
 
 // Constants
@@ -20,6 +21,7 @@ void createSheet();
 void insertRow();
 void viewSheetCSV();
 bool isValidInt(string value);
+bool isValidText(string value);
 void MainMenu();
 
 int main()
@@ -81,7 +83,6 @@ void createSheet() {
     getline(cin, sheetName);
     cout << "Attendance sheet \"" << sheetName << "\" created successfully." << endl << endl;
 
-    // define number of columns
     do {
         cout << "Define number of columns (max 10): ";
         cin >> numColumns;
@@ -89,18 +90,20 @@ void createSheet() {
         if (cin.fail()) {
             cin.clear();
             cin.ignore(1000, '\n');
-            cout << "Invalid INT value." << endl;
+            cout << "Invalid INT value. Please enter a number.\n";
             numColumns = 0;
-        } 
-        else if (numColumns < 1 || numColumns > MAX_COLUMNS) {
-            cout << "Invalid INT value. Please enter an INT value between 1 and " << MAX_COLUMNS << "." << endl;
         }
+        else if (numColumns < 1 || numColumns > MAX_COLUMNS) {
+            cout << "Invalid INT value. Please enter a value between 1 and "
+                 << MAX_COLUMNS << ".\n";
+        }
+
     } while (numColumns < 1 || numColumns > MAX_COLUMNS);
 
     cin.ignore();
 
     // loop through each column and get name and type
-    for (int i=0; i < numColumns; i++) {
+    for (int i = 0; i < numColumns; i++) {
         cout << "Enter column " << (i + 1) << " name: ";
         getline(cin, columnNames[i]);
 
@@ -109,10 +112,9 @@ void createSheet() {
             getline(cin, columnTypes[i]);
 
             if (columnTypes[i] != "INT" && columnTypes[i] != "TEXT") {
-                cout << "Invalid type. Please enter INT or TEXT." << endl;
+                cout << "Invalid type. Please enter INT or TEXT.\n";
             }
         } while (columnTypes[i] != "INT" && columnTypes[i] != "TEXT");
-
     }
 
     cout << "Sheet structure created successfully." << endl << endl;
@@ -147,16 +149,21 @@ void insertRow() {
                 cout << "Enter " << columnNames[col] << ": ";
                 getline(cin, input);
 
-                if (columnTypes[col] == "INT") {
-                    if (!isValidInt(input)) {
-                        cout << "Error: Invalid INT value. Please enter a number.\n";
-                        continue;
-                    }
-                }
+         if (columnTypes[col] == "INT") {
+             if (!isValidInt(input)) {
+                cout << "Error: Invalid INT value. Please enter a number.\n";
+                continue;
+            }
+        }
+        else if (columnTypes[col] == "TEXT") {
+            if (!isValidText(input)) {
+                cout << "Error: Invalid TEXT value. Please enter text.\n";
+                continue;
+            }
+        }
 
-
-                sheetData[numRows][col] = input;
-                break;
+        sheetData[numRows][col] = input;
+        break;
             }
         }
 
@@ -170,6 +177,17 @@ void insertRow() {
             break;
         }
     }
+}
+
+bool isValidText(string value) {
+    if (value.empty()) return false;
+
+    for (int i = 0; i < value.length(); i++) {
+        if (!isdigit(value[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void viewSheetCSV() {
