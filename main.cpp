@@ -30,6 +30,9 @@ int main()
     cout << "   STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
     cout << "===========================================\n\n";
 
+    //createSheet();
+    //insertRow();
+    //viewSheetCSV();
     do
     {
         MainMenu();
