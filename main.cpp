@@ -39,7 +39,6 @@ void createSheet() {
     getline(cin, sheetName);
     cout << "Attendance sheet \"" << sheetName << "\" created successfully." << endl << endl;
 
-    // define number of columns
     do {
         cout << "Define number of columns (max 10): ";
         cin >> numColumns;
@@ -86,26 +85,27 @@ bool isValidInt(string value) {
 void insertRow() {
     string input;
 
-    while (true) {
-        cout << "-------------------------------------------\n";
-        cout << "Insert New Attendance Row\n";
-        cout << "-------------------------------------------\n";
+    cout << "-------------------------------------------\n";
+    cout << "Insert New Attendance Row\n";
+    cout << "-------------------------------------------\n";
 
-        if (numRows >= MAX_ROWS) {
-            cout << "Error: Maximum row limit reached.\n";
-            return;
-        }
+    if (numRows >= MAX_ROWS) {
+        cout << "Error: Maximum row limit reached.\n";
+        return;
+    }
 
-        for (int col = 0; col < numColumns; col++) {
-            cout << "Enter " << columnNames[col] << ": ";
-            getline(cin, input);
+    for (int col = 0; col < numColumns; col++) {
+        cout << "Enter " << columnNames[col] << ": ";
+        getline(cin, input);
 
+        // INT column check
         if (columnTypes[col] == "INT") {
             if (!isValidInt(input)) {
                 cout << "Error: Invalid INT value. Please enter a number.\n";
                 return;
             }
         }
+        // TEXT column check
         else if (columnTypes[col] == "TEXT") {
             if (!isValidText(input)) {
                 cout << "Error: Invalid TEXT value. Please enter text.\n";
@@ -113,19 +113,11 @@ void insertRow() {
             }
         }
 
-            sheetData[numRows][col] = input;
-        }
-
-        numRows++;
-        cout << "Row inserted successfully.\n\n";
-
-        cout << "Insert another row? (Y/N): ";
-        getline(cin, input);
-
-        if (input != "Y" && input != "y") {
-            break;
-        }
+        sheetData[numRows][col] = input;
     }
+
+    numRows++;
+    cout << "Row inserted successfully.\n\n";
 }
 
 bool isValidText(string value) {
