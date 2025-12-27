@@ -1,3 +1,21 @@
+// *********************************************************
+// Program: TC1L_GROUP38_A1.cpp
+// Course: CCP6114 Programming Fundamentals
+// Lecture Class: TC1L
+// Tutorial Class: TT2L and TT3L
+// Trimester: 2530
+// Member_1: 252UC241MK | ADRIANA NUR ZAHRA BINTI MOHD HELMI | ADRIANA.NUR.ZAHRA1@student.mmu.edu.my | 0132080445
+// Member_2: 252UC242N8 | CHIAM JUIN HOONG | CHIAM.JUIN.HOONG1@student.mmu.edu.my | 0125450314
+// Member_3: 252UC243DZ | NURSYAHIRAH AQILAH BINTI AINUL HISHAM | NURSYAHIRAH.AQILAH.AINUL1@student.mmu.edu.my | 0194482144
+// Member_4: 252UC243DY | QAISARAH BINTI SHAMSUL AZRAN | QAISARAH.SHAMSUL.AZRAN1@student.mmu.edu.my | 0134130145
+// *********************************************************
+// Task Distribution
+// Member_1: Create Sheet, Sheet Structure, Data Types
+// Member_2: Insert Attendance Row
+// Member_3: Main Menu and Error Handling
+// Member_4: View Attendance Sheet in CSV
+// *********************************************************
+
 #include <iostream>
 #include <iomanip>
 #include <string>
