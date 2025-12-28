@@ -33,6 +33,7 @@ string columnTypes[MAX_COLUMNS];
 string sheetData[MAX_ROWS][MAX_COLUMNS];
 int numColumns = 0;
 int numRows = 0;
+bool sheetExist = false;
 
 // Function Prototypes
 void createSheet();
@@ -56,7 +57,7 @@ int main()
     do
     {
         MainMenu();
-        cout << "Please Enter Your Choice\n";
+        cout << "Please Enter Your Choice\n\n";
         cin >> choice;
 
         if (cin.fail())
@@ -72,14 +73,30 @@ int main()
         {
         case 1:
             createSheet();
-            break;
-
-        case 2:
             insertRow();
             break;
 
+        case 2:
+            if (sheetExist == false)
+            {
+                cout << "\nPlease create an attendance sheet first.\n";
+            }
+            else
+            {
+                insertRow();
+            }
+            break;
+
         case 3:
-            viewSheetCSV();
+            if (sheetExist == false)
+            {
+                cout << "\nPlease create an attendance sheet first.\n";
+            }
+            else
+            {
+                viewSheetCSV();
+            }
+
             break;
 
         case 4:
@@ -97,7 +114,7 @@ int main()
 }
 
 void createSheet() {
-    cout << "Enter attendance sheet name: ";
+    cout << "\nEnter attendance sheet name: ";
     getline(cin, sheetName);
     cout << "Attendance sheet \"" << sheetName << "\" created successfully." << endl << endl;
 
@@ -135,6 +152,7 @@ void createSheet() {
         } while (columnTypes[i] != "INT" && columnTypes[i] != "TEXT");
     }
 
+    sheetExist = true;
     cout << "Sheet structure created successfully." << endl << endl;
 }
 
