@@ -60,12 +60,12 @@ int main()
         cout << "Please Enter Your Choice\n\n";
         cin >> choice;
 
-        if (cin.fail())
+        while (cin.fail())
         {
             cin.clear();
             cin.ignore(1000, '\n');
             cout << "Error: Invalid input. Please enter a valid number.\n\n";
-            continue;
+            cin >> choice;
         }
         cin.ignore();
 
