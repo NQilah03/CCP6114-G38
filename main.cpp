@@ -76,7 +76,7 @@ int main()
             insertRow();
             break;
 
-        case 2:
+        /**case 2:
             if (sheetExist == false)
             {
                 cout << "\nPlease create an attendance sheet first.\n";
@@ -85,9 +85,9 @@ int main()
             {
                 insertRow();
             }
-            break;
+            break;  **/
 
-        case 3:
+        case 2:
             if (sheetExist == false)
             {
                 cout << "\nPlease create an attendance sheet first.\n";
@@ -99,7 +99,7 @@ int main()
 
             break;
 
-        case 4:
+        case 3:
             cout << "Exiting program...\n";
             break;
 
@@ -108,7 +108,7 @@ int main()
         }
 
     }
-    while (choice != 4);
+    while (choice != 3);
 
     return 0;
 }
@@ -256,7 +256,7 @@ void MainMenu()
     cout << "Main Menu\n";
     cout << "-------------------------------------------\n";
     cout << "1. Create Attendance Sheet\n";
-    cout << "2. Insert Attendance Row\n";
-    cout << "3. View Attendance Sheet (CSV)\n";
-    cout << "4. Exit\n";
+    //cout << "2. Insert Attendance Row\n";
+    cout << "2. View Attendance Sheet (CSV)\n";
+    cout << "3. Exit\n";
 }
