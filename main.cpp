@@ -48,13 +48,14 @@ void MainMenu();
 int main()
 {
     int choice;
+    string exitStatus;
 
-    cout << "===========================================\n";
-    cout << "   STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
-    cout << "===========================================\n\n";
+    cout << "============================================\n";
+    cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
+    cout << "============================================\n\n";
 
-    //createSheet();
-    //insertRow();
+    createSheet();
+    insertRow();
     //viewSheetCSV();
     do
     {
@@ -74,35 +75,29 @@ int main()
         switch (choice)
         {
         case 1:
-            createSheet();
             insertRow();
             break;
 
         case 2:
-            if (sheetExist == false)
-            {
-                cout << "\nPlease create an attendance sheet first.\n";
-            }
-            else
-            {
-                insertRow();
-            }
+            viewSheetCSV();
             break;
 
         case 3:
-            if (sheetExist == false)
-            {
-                cout << "\nPlease create an attendance sheet first.\n";
-            }
-            else
-            {
-                viewSheetCSV();
-            }
-
+            createCSVfile(sheetName);
             break;
 
         case 4:
-            cout << "Exiting program...\n";
+            cout << "Please ensure you have saved your sheet in a file.\nAll data will be erased once you exit." << endl;
+            cout << "\nAre you sure you want to exit? [y/n]: ";
+            cin >> exitStatus;
+            if (exitStatus == "Y" || exitStatus == "y"){
+                cout << "Exiting program...\n";
+                choice = 5;
+            }
+            else
+                break;
+        
+        case 5:
             break;
 
         default:
@@ -110,7 +105,7 @@ int main()
         }
 
     }
-    while (choice != 4);
+    while (choice != 5);
 
     return 0;
 }
@@ -250,7 +245,6 @@ void viewSheetCSV() {
         }
         cout << endl;
     }
-    createCSVfile(sheetName);
 }
 
 void MainMenu()
@@ -258,9 +252,9 @@ void MainMenu()
     cout << "\n-------------------------------------------\n";
     cout << "Main Menu\n";
     cout << "-------------------------------------------\n";
-    cout << "1. Create Attendance Sheet\n";
-    cout << "2. Insert Attendance Row\n";
-    cout << "3. View Attendance Sheet (CSV)\n";
+    cout << "1. Insert More Rows\n";
+    cout << "2. View Attendance Sheet (CSV)\n";
+    cout << "3. Save Sheet in CSV File\n";
     cout << "4. Exit\n";
 }
 
@@ -295,6 +289,7 @@ void createCSVfile(string sheetName){
             }
             outputFile << endl;
         }
+        cout << "The file \"" << filename << "\" has been created. Please check your files." << endl;
     }
     outputFile.close();
 }
