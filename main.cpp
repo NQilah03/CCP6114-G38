@@ -10,8 +10,8 @@
 // Member_4: 252UC243DY | QAISARAH BINTI SHAMSUL AZRAN | QAISARAH.SHAMSUL.AZRAN1@student.mmu.edu.my | 0134130145
 // *********************************************************
 // Task Distribution
-// Member_1: Create Sheet, Sheet Structure, Data Types
-// Member_2: Insert Attendance Row
+// Member_1: Insert Attendance Row
+// Member_2: Create Sheet, Sheet Structure, Data Types
 // Member_3: Main Menu and Error Handling
 // Member_4: View Attendance Sheet in CSV
 // *********************************************************
@@ -76,7 +76,7 @@ int main()
             insertRow();
             break;
 
-        /**case 2:
+        case 2:
             if (sheetExist == false)
             {
                 cout << "\nPlease create an attendance sheet first.\n";
@@ -85,9 +85,9 @@ int main()
             {
                 insertRow();
             }
-            break;  **/
+            break;
 
-        case 2:
+        case 3:
             if (sheetExist == false)
             {
                 cout << "\nPlease create an attendance sheet first.\n";
@@ -99,7 +99,7 @@ int main()
 
             break;
 
-        case 3:
+        case 4:
             cout << "Exiting program...\n";
             break;
 
@@ -256,7 +256,7 @@ void MainMenu()
     cout << "Main Menu\n";
     cout << "-------------------------------------------\n";
     cout << "1. Create Attendance Sheet\n";
-    //cout << "2. Insert Attendance Row\n";
-    cout << "2. View Attendance Sheet (CSV)\n";
-    cout << "3. Exit\n";
+    cout << "2. Insert Attendance Row\n";
+    cout << "3. View Attendance Sheet (CSV)\n";
+    cout << "4. Exit\n";
 }
