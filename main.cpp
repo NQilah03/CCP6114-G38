@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <string>
 #include <cctype>
+#include <fstream>
 using namespace std;
 
 // Constants
@@ -39,6 +40,7 @@ bool sheetExist = false;
 void createSheet();
 void insertRow();
 void viewSheetCSV();
+void createCSVfile(string);
 bool isValidInt(string value);
 bool isValidText(string value);
 void MainMenu();
@@ -108,7 +110,7 @@ int main()
         }
 
     }
-    while (choice != 3);
+    while (choice != 4);
 
     return 0;
 }
@@ -248,6 +250,7 @@ void viewSheetCSV() {
         }
         cout << endl;
     }
+    createCSVfile(sheetName);
 }
 
 void MainMenu()
@@ -259,4 +262,39 @@ void MainMenu()
     cout << "2. Insert Attendance Row\n";
     cout << "3. View Attendance Sheet (CSV)\n";
     cout << "4. Exit\n";
+}
+
+void createCSVfile(string sheetName){
+    ofstream outputFile;
+    string filename;
+    filename = sheetName + ".csv";
+    outputFile.open(filename);
+
+    if(!outputFile.is_open()){
+        cout << "Error opening the file \"" << filename << "\"." << endl;
+    }
+    else{
+        outputFile << "\n-------------------------------------------\n";
+        outputFile << "             Attendance Sheet\n";
+        outputFile << "-------------------------------------------\n";
+
+        for (int i = 0; i < numColumns; i++){
+            outputFile << columnNames[i];
+            if (i != (numColumns - 1)){
+                outputFile << ", ";
+            }
+        }
+        outputFile << endl;
+
+        for (int row = 0; row < numRows; row++){
+            for (int column = 0; column < numColumns; column++){
+                outputFile << sheetData[row][column];
+                if (column != (numColumns - 1)){
+                    outputFile << ", ";
+                }
+            }
+            outputFile << endl;
+        }
+    }
+    outputFile.close();
 }
