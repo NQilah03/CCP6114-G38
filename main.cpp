@@ -107,16 +107,13 @@ int main()
                 }
             }while (true);
 
-
             break;
 
         default:
             cout << "\nError: Invalid menu choice. Please try again.\n\n";
             break;
         }
-
     }
-
     return 0;
 }
 
