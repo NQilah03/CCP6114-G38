@@ -52,12 +52,12 @@ int main()
 
     cout << "============================================\n";
     cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
-    cout << "============================================\n\n";
+    cout << "============================================\n";
 
     createSheet();
     insertRow();
     //viewSheetCSV();
-    do
+    while(true)
     {
         MainMenu();
         cout << "Please Enter Your Choice\n\n";
@@ -87,25 +87,35 @@ int main()
             break;
 
         case 4:
-            cout << "Please ensure you have saved your sheet in a file.\nAll data will be erased once you exit." << endl;
-            cout << "\nAre you sure you want to exit? [y/n]: ";
-            cin >> exitStatus;
-            if (exitStatus == "Y" || exitStatus == "y"){
-                cout << "Exiting program...\n";
-                choice = 5;
-            }
-            else
-                break;
-        
-        case 5:
+            cout << "\nAll data will be erased once you exit.\n";
+            cout << "Please ensure you have saved your sheet.\n" << endl;
+            do
+            {
+                cout << "Are you sure you want to exit? [y/n]: ";
+                cin >> exitStatus;
+
+                if (exitStatus == "Y" || exitStatus == "y")
+                {
+                    cout << "\nExiting program...\n";
+                    return 0;
+                }
+                else if (exitStatus == "N" || exitStatus == "n")
+                    break;
+                else
+                {
+                    cout << "Error: Invalid choice. Please enter 'y' or 'n'\n";
+                }
+            }while (true);
+
+
             break;
 
         default:
-            cout << "Error: Invalid menu choice. Please try again.\n\n";
+            cout << "\nError: Invalid menu choice. Please try again.\n\n";
+            break;
         }
 
     }
-    while (choice != 5);
 
     return 0;
 }
