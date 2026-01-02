@@ -272,7 +272,7 @@ void createCSVfile(string sheetName){
     outputFile.open(filename);
 
     if(!outputFile.is_open()){
-        cout << "Error opening the file \"" << filename << "\"." << endl;
+        cout << "\nError opening the file \"" << filename << "\"." << endl;
     }
     else{
         outputFile << "\n-------------------------------------------\n";
@@ -296,7 +296,7 @@ void createCSVfile(string sheetName){
             }
             outputFile << endl;
         }
-        cout << "The file \"" << filename << "\" has been created. Please check your files." << endl;
+        cout << "\nThe file \"" << filename << "\" has been created. Please check your files." << endl;
     }
     outputFile.close();
 }
