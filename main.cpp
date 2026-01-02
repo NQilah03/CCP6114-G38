@@ -87,7 +87,7 @@ int main()
             break;
 
         case 4:
-            cout << "Please ensure you have saved your sheet in a file.\nAll data will be erased once you exit." << endl;
+            cout << "\nPlease ensure you have saved your sheet in a file.\nAll data will be erased once you exit." << endl;
             cout << "\nAre you sure you want to exit? [y/n]: ";
             cin >> exitStatus;
             if (exitStatus == "Y" || exitStatus == "y"){
@@ -265,7 +265,7 @@ void createCSVfile(string sheetName){
     outputFile.open(filename);
 
     if(!outputFile.is_open()){
-        cout << "Error opening the file \"" << filename << "\"." << endl;
+        cout << "\nError opening the file \"" << filename << "\"." << endl;
     }
     else{
         outputFile << "\n-------------------------------------------\n";
@@ -289,7 +289,7 @@ void createCSVfile(string sheetName){
             }
             outputFile << endl;
         }
-        cout << "The file \"" << filename << "\" has been created. Please check your files." << endl;
+        cout << "\nThe file \"" << filename << "\" has been created. Please check your files." << endl;
     }
     outputFile.close();
 }
