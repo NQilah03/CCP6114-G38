@@ -26,12 +26,14 @@ using namespace std;
 // Constants
 const int MAX_COLUMNS = 10;
 const int MAX_ROWS = 100;
+const int MAX_SHEET = 100;
 
 // Global Variables
 string termName = "";
 string sheetName = "";
 string columnNames[MAX_COLUMNS];
 string columnTypes[MAX_COLUMNS];
+string database[MAX_SHEET];
 string sheetData[MAX_ROWS][MAX_COLUMNS];
 int numColumns = 0;
 int numRows = 0;
@@ -44,12 +46,78 @@ void viewSheetCSV();
 void createCSVfile(string);
 bool isValidInt(string value);
 bool isValidText(string value);
-void MainMenu();
+void createNewAttendanceSheet();
+void MainMenuM1();
+int MainMenuM2();
+void createDatabase();
 
 int main()
 {
+    createDatabase();
+    cin.ignore();
+    int choice, sheet=0;
+    do {
+        createNewAttendanceSheet();
+        choice = MainMenuM2();
+        database[sheet] = sheetName + ".csv";
+        sheet++;
+    } while (choice == 1);
+
+    if (choice == 2){
+        if (sheet == 1){
+            ifstream readFile;
+            readFile.open(sheetName + ".csv");
+            string loadedFile;
+            if (!readFile){
+                cout << "\nError opening the file \"" << sheetName << ".csv" << "\"." << endl;
+                MainMenuM2();
+            }
+            else {
+                while(readFile){
+                    getline(readFile, loadedFile);
+                    cout << loadedFile << endl;
+                }
+                //FILE TK CLOSE LGI
+            }
+        }
+        else if (sheet > 1){
+            int fileToLoad;
+            string loadingFileName;
+            cout << "-------------------------------------------\n";
+            cout << "\tExisting Files" << endl;
+            cout << "-------------------------------------------\n";
+            for (int i = 0; i < sheet; i++){
+                cout << i + 1 << ". " << database[i] << endl;
+            }
+            cout << "Please choose which file to load: ";
+            cin >> fileToLoad;
+
+            loadingFileName = database[fileToLoad - 1]; //ERROR HANDLING NOT DONE
+            
+            ifstream readFile;
+            readFile.open(loadingFileName);
+            string loadedFile;
+            if (!readFile){
+                cout << "\nError opening the file \"" << loadingFileName << "\"." << endl;
+                MainMenuM2();
+            }
+            else {
+                while(readFile){
+                    getline(readFile, loadedFile);
+                    cout << loadedFile << endl;
+                }
+                //FILE TK CLOSE LGI
+            }
+            
+        }
+    }
+    else {
+        return 0;
+    }
+}
+
+void createNewAttendanceSheet(){
     int choice;
-    string exitStatus;
 
     createTerm();
 
@@ -59,10 +127,11 @@ int main()
 
     createSheet();
     insertRow();
+
     while(true)
     {
-        MainMenu();
-        cout << "Please Enter Your Choice\n\n";
+        MainMenuM1();
+        cout << "\nPlease Enter Your Choice: ";
         cin >> choice;
 
         while (cin.fail())
@@ -86,37 +155,49 @@ int main()
 
         case 3:
             createCSVfile(sheetName);
-            break;
-
-        case 4:
-            cout << "\nAll data will be erased once you exit.\n";
-            cout << "Please ensure you have saved your sheet.\n" << endl;
-            do
-            {
-                cout << "Are you sure you want to exit? [y/n]: ";
-                cin >> exitStatus;
-
-                if (exitStatus == "Y" || exitStatus == "y")
-                {
-                    cout << "\nExiting program...\n";
-                    return 0;
-                }
-                else if (exitStatus == "N" || exitStatus == "n")
-                    break;
-                else
-                {
-                    cout << "Error: Invalid choice. Please enter 'y' or 'n'\n";
-                }
-            }while (true);
-
-            break;
+            return;
 
         default:
             cout << "\nError: Invalid menu choice. Please try again.\n\n";
             break;
         }
     }
-    return 0;
+}
+
+void createDatabase(){
+    string termName;
+    cout << "============================================\n";
+    cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 2\n";
+    cout << "============================================\n\n";
+
+    cout << "Create School Term (Database)" << endl;
+    cout << "-------------------------------------------\n";
+    cout << "Enter term name: ";
+    cin >> termName;
+    cout << "Database \"" << termName << "\" created and loaded." << endl << endl;
+}
+
+int MainMenuM2(){
+    int choice;
+    cout << "\n-------------------------------------------\n";
+    cout << "Main Menu Milestone 2\n";
+    cout << "-------------------------------------------\n";
+    cout << "1. Create New Attendance Sheet\n";
+    cout << "2. Load Existing Attendance Sheet(s)\n";
+    cout << "3. Exit Program\n\n";
+    cout << "Please Enter Your Choice: ";
+    cin >> choice;
+
+    while (cin.fail())
+    {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Error: Invalid input. Please enter a valid number.\n\n";
+        cin >> choice;
+    }
+    cin.ignore();
+
+    return choice;
 }
 
 void createSheet() {
@@ -191,21 +272,21 @@ void insertRow() {
                 cout << "Enter " << columnNames[col] << ": ";
                 getline(cin, input);
 
-         if (columnTypes[col] == "INT") {
-             if (!isValidInt(input)) {
-                cout << "Error: Invalid INT value. Please enter a number.\n";
-                continue;
+            if (columnTypes[col] == "INT") {
+                if (!isValidInt(input)) {
+                    cout << "Error: Invalid INT value. Please enter a number.\n";
+                    continue;
+                }
             }
-        }
-        else if (columnTypes[col] == "TEXT") {
-            if (!isValidText(input)) {
-                cout << "Error: Invalid TEXT value. Please enter text.\n";
-                continue;
+            else if (columnTypes[col] == "TEXT") {
+                if (!isValidText(input)) {
+                    cout << "Error: Invalid TEXT value. Please enter text.\n";
+                    continue;
+                }
             }
-        }
 
-        sheetData[numRows][col] = input;
-        break;
+            sheetData[numRows][col] = input;
+            break;
             }
         }
 
@@ -256,15 +337,14 @@ void viewSheetCSV() {
     }
 }
 
-void MainMenu()
+void MainMenuM1()
 {
     cout << "\n-------------------------------------------\n";
-    cout << "Main Menu\n";
+    cout << "Main Menu Milestone 1\n";
     cout << "-------------------------------------------\n";
     cout << "1. Insert More Rows\n";
     cout << "2. View Attendance Sheet (CSV)\n";
-    cout << "3. Save Sheet in CSV File\n";
-    cout << "4. Exit\n";
+    cout << "3. Save Sheet in CSV File and Exit\n";
 }
 
 void createCSVfile(string sheetName){
@@ -273,7 +353,7 @@ void createCSVfile(string sheetName){
     filename = sheetName + ".csv";
     outputFile.open(filename);
 
-    if(!outputFile.is_open()){
+    if(!outputFile){
         cout << "\nError opening the file \"" << filename << "\"." << endl;
     }
     else{
@@ -301,6 +381,18 @@ void createCSVfile(string sheetName){
         cout << "\nThe file \"" << filename << "\" has been created. Please check your files." << endl;
     }
     outputFile.close();
+
+    for (int i = 0; i < numColumns; i++){
+        columnNames[i] = "";
+    }
+
+    for (int row = 0; row < numRows; row++){
+        for (int column = 0; column < numColumns; column++){
+            sheetData[row][column] = "";
+        }
+    }
+
+    numRows = 0;
 }
 
 void createTerm() {
