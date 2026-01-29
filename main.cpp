@@ -28,6 +28,7 @@ const int MAX_COLUMNS = 10;
 const int MAX_ROWS = 100;
 
 // Global Variables
+string termName = "";
 string sheetName = "";
 string columnNames[MAX_COLUMNS];
 string columnTypes[MAX_COLUMNS];
@@ -50,13 +51,14 @@ int main()
     int choice;
     string exitStatus;
 
+    createTerm();
+
     cout << "============================================\n";
     cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
     cout << "============================================\n";
 
     createSheet();
     insertRow();
-    //viewSheetCSV();
     while(true)
     {
         MainMenu();
@@ -299,4 +301,16 @@ void createCSVfile(string sheetName){
         cout << "\nThe file \"" << filename << "\" has been created. Please check your files." << endl;
     }
     outputFile.close();
+}
+
+void createTerm() {
+    cout << "\n===========================================\n";
+    cout << " STUDENT ATTENDANCE TRACKER - MILESTONE 2\n";
+    cout << "===========================================\n";
+    cout << "Create School Term (Database)\n";
+    cout << "-------------------------------------------\n";
+    cout << "Enter term name: ";
+    getline(cin, termName);
+    cout << "Database \"" << termName << "\" created and loaded.\n";
+    cout << "-------------------------------------------\n\n";
 }
