@@ -138,10 +138,12 @@ void readDataFromFile(string filename, int sheet){
         cout << "\nReading attendance data from file...\n";
         cout << "Successfully loaded: " << filename << "\n\n";
 
+        // Load the file contents into columnNames[] and sheetData[] arrays
+        // This allows the data to be edited
         loadAttendanceFile(filename);
 
-        viewSheetCSV();               // or displayCurrentSheet(...) if you prefer
-        editSheetMenuM2();            // your menu
+        viewSheetCSV(); // Display the loaded sheet to the user
+        editSheetMenuM2();
 }
 
     readFile.close();
@@ -338,13 +340,13 @@ void viewSheetCSV() {
 
     for (int i = 0; i < numColumns; i++){ //Loop through each elements in the columnName[]
         cout << columnNames[i];           //array to display the column names.
-        if (i != (numColumns - 1)){ //Add comma between elements (add comma only when
-            cout << ", ";           //it is not the last element).
+        if (i != (numColumns - 1)){ //Add comma between elements
+            cout << ", ";
         }
     }
     cout << endl;
 
-    //Loop through each rows and columns to display the elements (attendance data).
+    //Loop through each rows and columns to display the elements
     for (int row = 0; row < numRows; row++){
         for (int column = 0; column < numColumns; column++){
             cout << sheetData[row][column];
@@ -499,12 +501,14 @@ string getIntInputLine(const string& prompt) {
     }
 }
 
+// Deletes an attendance row based on StudentID
+// Rows below the deleted record are shifted up
 void deleteAttendanceRow() {
     cout << "\n-------------------------------------------\n";
     cout << "Delete Attendance Row\n";
     cout << "-------------------------------------------\n";
 
-    int sidCol = findStudentIdCol();
+    int sidCol = findStudentIdCol(); // Find the column that containts StudentID
     if (sidCol == -1) {
         cout << "Error: StudentID column not found.\n";
         return;
@@ -512,7 +516,7 @@ void deleteAttendanceRow() {
 
     string sid = getIntInputLine("Enter StudentID to delete: ");
 
-    int targetRow = -1;
+    int targetRow = -1; // Search for matching row
     for (int r = 0; r < numRows; r++) {
         if (sheetData[r][sidCol] == sid) {
             targetRow = r;
@@ -525,14 +529,12 @@ void deleteAttendanceRow() {
         return;
     }
 
-    // shift rows up
-    for (int r = targetRow; r < numRows - 1; r++) {
+    for (int r = targetRow; r < numRows - 1; r++) { // Shift rows upward to remove the selected row
         for (int c = 0; c < numColumns; c++) {
             sheetData[r][c] = sheetData[r + 1][c];
         }
     }
 
-    // clear last row (optional)
     for (int c = 0; c < numColumns; c++) {
         sheetData[numRows - 1][c] = "";
     }
@@ -545,6 +547,7 @@ void deleteAttendanceRow() {
     printSheetRawCSV();
 }
 
+// Displays the total number of attendance records currently stored
 void countRowsOutput() {
     cout << "\n-------------------------------------------\n";
     cout << "Count Rows\n";
@@ -552,60 +555,22 @@ void countRowsOutput() {
     cout << "Number of rows: " << numRows << endl;
 }
 
-bool shouldSkipLine(string line) {
-    while (!line.empty() && (line[0] == ' ' || line[0] == '\t')) line.erase(0, 1);
-    while (!line.empty() && (line.back() == ' ' || line.back() == '\t')) line.pop_back();
-
-    if (line.empty()) return true;
-
-    bool allDash = true;
-    for (int i = 0; i < (int)line.size(); i++) {
-        if (line[i] != '-' && line[i] != '=') {
-            allDash = false;
-            break;
-        }
-    }
-    if (allDash) return true;
-
-    string lower = line;
-    for (char &c : lower) c = tolower(c);
-    if (lower == "attendance sheet") return true;
-
-    return false;
-}
-
+// Splits a CSV line by comma
 int splitLine(string line, string tokens[], int maxTokens) {
-    bool hasComma = (line.find(',') != string::npos);
-
     int count = 0;
-    string token = "";
+    stringstream ss(line);
+    string token;
 
-    if (hasComma) {
-        for (int i = 0; i <= (int)line.size(); i++) {
-            if (i == (int)line.size() || line[i] == ',') {
-                while (!token.empty() && token[0] == ' ') token.erase(0, 1);
-                while (!token.empty() && token.back() == ' ') token.pop_back();
-                if (count < maxTokens) tokens[count++] = token;
-                token = "";
-            } else {
-                token += line[i];
-            }
-        }
-    } else {
-        for (int i = 0; i <= (int)line.size(); i++) {
-            if (i == (int)line.size() || line[i] == ' ' || line[i] == '\t') {
-                if (!token.empty()) {
-                    if (count < maxTokens) tokens[count++] = token;
-                    token = "";
-                }
-            } else {
-                token += line[i];
-            }
-        }
+    // Get each token separated by commas
+    while (getline(ss, token, ',') && count < maxTokens) {
+        tokens[count++] = token; // Add token to array
     }
+
     return count;
 }
 
+// Loads attendance data from a CSV file into memory
+// Assumes the first column is StudentID (INT)
 void loadAttendanceFile(string filename) {
     ifstream f(filename);
     if (!f) {
@@ -613,6 +578,7 @@ void loadAttendanceFile(string filename) {
         return;
     }
 
+    // Clear old data
     for (int i = 0; i < MAX_COLUMNS; i++) columnNames[i] = "";
     for (int r = 0; r < MAX_ROWS; r++)
         for (int c = 0; c < MAX_COLUMNS; c++)
@@ -624,22 +590,19 @@ void loadAttendanceFile(string filename) {
     string line;
     string tokens[MAX_COLUMNS];
 
-    // Header
-    while (getline(f, line)) {
-        if (shouldSkipLine(line)) continue;
-
+    // Read header
+    if (getline(f, line)) {
         numColumns = splitLine(line, tokens, MAX_COLUMNS);
         for (int i = 0; i < numColumns; i++) {
             columnNames[i] = tokens[i];
         }
-        break;
     }
 
-    // Data rows
+    // Read data rows
     while (getline(f, line) && numRows < MAX_ROWS) {
-        if (shouldSkipLine(line)) continue;
-
         int cols = splitLine(line, tokens, MAX_COLUMNS);
+
+        // First column must be StudentID
         if (cols <= 0 || !isValidInt(tokens[0])) continue;
 
         for (int c = 0; c < numColumns; c++) {
