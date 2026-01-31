@@ -26,11 +26,13 @@ using namespace std;
 const int MAX_COLUMNS = 10;
 const int MAX_ROWS = 100;
 const int MAX_SHEET = 100;
+const int MAX_SHEET = 100;
 
 // Global Variables
 string sheetName = "";
 string columnNames[MAX_COLUMNS];
 string columnTypes[MAX_COLUMNS];
+string database[MAX_SHEET];
 string database[MAX_SHEET];
 string sheetData[MAX_ROWS][MAX_COLUMNS];
 int numColumns = 0;
@@ -313,7 +315,21 @@ void insertRow() {
                     continue;
                 }
             }
+            if (columnTypes[col] == "INT") {
+                if (!isValidInt(input)) {
+                    cout << "Error: Invalid INT value. Please enter a number.\n";
+                    continue;
+                }
+            }
+            else if (columnTypes[col] == "TEXT") {
+                if (!isValidText(input)) {
+                    cout << "Error: Invalid TEXT value. Please enter text.\n";
+                    continue;
+                }
+            }
 
+            sheetData[numRows][col] = input;
+            break;
             sheetData[numRows][col] = input;
             break;
             }
@@ -387,6 +403,7 @@ void displayCurrentSheet() {
 void MainMenuM1()
 {
     cout << "\n-------------------------------------------\n";
+    cout << "Main Menu Milestone 1\n";
     cout << "Main Menu Milestone 1\n";
     cout << "-------------------------------------------\n";
     cout << "1. Insert More Rows\n";
