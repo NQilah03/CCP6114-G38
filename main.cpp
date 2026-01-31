@@ -45,6 +45,9 @@ void createCSVfile(string);
 bool isValidInt(string value);
 bool isValidText(string value);
 void MainMenu();
+void createTerm();
+void viewTermName();
+void countRows();
 
 int main()
 {
@@ -59,6 +62,7 @@ int main()
 
     createSheet();
     insertRow();
+
     while(true)
     {
         MainMenu();
@@ -89,6 +93,14 @@ int main()
             break;
 
         case 4:
+            viewTermName();
+            break;
+
+        case 5:
+            countRows();
+            break;
+
+        case 6:
             cout << "\nAll data will be erased once you exit.\n";
             cout << "Please ensure you have saved your sheet.\n" << endl;
             do
@@ -264,7 +276,9 @@ void MainMenu()
     cout << "1. Insert More Rows\n";
     cout << "2. View Attendance Sheet (CSV)\n";
     cout << "3. Save Sheet in CSV File\n";
-    cout << "4. Exit\n";
+    cout << "4. View Term Name\n";
+    cout << "5. Cout Rows\n";
+    cout << "6. Exit\n";
 }
 
 void createCSVfile(string sheetName){
@@ -313,4 +327,20 @@ void createTerm() {
     getline(cin, termName);
     cout << "Database \"" << termName << "\" created and loaded.\n";
     cout << "-------------------------------------------\n\n";
+}
+
+void viewTermName() {
+    if (termName.empty()) {
+        cout << "No term created yet.\n";
+    } else {
+        cout << "Term Name: " << termName << endl;
+    }
+}
+
+void countRows() {
+    cout << "\n-------------------------------------------\n";
+    cout << " Count Rows\n";
+    cout << "-------------------------------------------\n";
+    cout << "Number of rows: " << numRows << endl;
+    cout << "-------------------------------------------\n";
 }
