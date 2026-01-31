@@ -36,6 +36,7 @@ string database[MAX_SHEET];
 string sheetData[MAX_ROWS][MAX_COLUMNS];
 int numColumns = 0;
 int numRows = 0;
+int numSheet = 0;
 bool sheetExist = false;
 
 // Function Prototypes
@@ -48,9 +49,9 @@ bool isValidText(string value);
 void createNewAttendanceSheet();
 void MainMenuM1();
 int MainMenuM2();
-void readDataFromFile(string, int);
-string showExistingFiles(int);
-void M2MenuChoice(int, int);
+void readDataFromFile(string);
+string showExistingFiles();
+void M2MenuChoice(int);
 
 int main()
 {
@@ -69,30 +70,30 @@ int main()
     cout << "Database \"" << termName << "\" created and loaded." << endl << endl;
     cin.ignore();
 
-    int choice=1, sheet=0;
-    M2MenuChoice(choice, sheet);
+    int choice=1;
+    M2MenuChoice(choice);
     return 0;
 }
 
-void M2MenuChoice(int choice, int sheet){
+void M2MenuChoice(int choice){
     while(choice == 1){ //1.Create new attendance sheet.
         createNewAttendanceSheet();
         choice = MainMenuM2();
-        database[sheet] = sheetName + ".csv"; //Add the created attendance sheet to the db (the
-        sheet++;                              //db is an array with names of files as elements).
+        database[numSheet] = sheetName + ".csv"; //Add the created attendance sheet to the db (the
+        numSheet++;                              //db is an array with names of files as elements).
     }
 
     if (choice == 2){ //2.Load existing files.
         string loadingFileName;
-        if (sheet == 1){
+        if (numSheet == 1){
             loadingFileName = sheetName + ".csv";
-            readDataFromFile(loadingFileName, sheet); //Immediately load the only existing file
+            readDataFromFile(loadingFileName); //Immediately load the only existing file
         }                                             //if there exists only one file.
-        else if (sheet > 1){
+        else if (numSheet > 1){
             //If there are more than one existing file, display the names
             //of the files and let user choose which file to load.
-            loadingFileName = showExistingFiles(sheet);
-            readDataFromFile(loadingFileName, sheet); //Load the chosen file.
+            loadingFileName = showExistingFiles();
+            readDataFromFile(loadingFileName); //Load the chosen file.
         }
     }
     else { //3.Exit program.
@@ -101,25 +102,25 @@ void M2MenuChoice(int choice, int sheet){
 }
 
 //Function to show all existing files and let user choose the file to load.
-string showExistingFiles(int sheet){
+string showExistingFiles(){
     int fileToLoad;
     string loadingFileName;
     cout << "-------------------------------------------\n";
     cout << "\tExisting Files" << endl;
     cout << "-------------------------------------------\n";
-    for (int i = 0; i < sheet; i++){
+    for (int i = 0; i < numSheet; i++){
         cout << i + 1 << ". " << database[i] << endl;
     } //Show the existing files, numbered.
     do{
-        cout << "\nPlease choose which file to load [1-" << sheet << "]: ";
+        cout << "\nPlease choose which file to load [1-" << numSheet << "]: ";
         cin >> fileToLoad;
-    }while(fileToLoad < 1 || fileToLoad > sheet); //User choose which file to load
+    }while(fileToLoad < 1 || fileToLoad > numSheet); //User choose which file to load
     loadingFileName = database[fileToLoad - 1];   //by choosing the number.
     return loadingFileName;
 }
 
 //Function to read attendance data from the attendance csv file.
-void readDataFromFile(string filename, int sheet){
+void readDataFromFile(string filename){
     ifstream readFile;
     readFile.open(filename);
     string loadedFile;
@@ -148,7 +149,7 @@ void readDataFromFile(string filename, int sheet){
         cin.ignore();
 
         choice++;
-        M2MenuChoice(choice, sheet);
+        M2MenuChoice(choice);
         */
     }
     else {
@@ -162,6 +163,12 @@ void readDataFromFile(string filename, int sheet){
 }
 
 void createNewAttendanceSheet(){
+
+    if (numRows >= MAX_SHEET) {
+            cout << "Error: Maximum row limit reached.\n";
+            return;
+        }
+
     int choice;
 
     cout << "============================================\n";
