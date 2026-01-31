@@ -43,26 +43,26 @@ bool sheetExist = false;
 void createSheet();
 void insertRow();
 void viewSheetCSV();
-void createCSVfile(string);
+void createCSVfile();
 bool isValidInt(string value);
 bool isValidText(string value);
 void createNewAttendanceSheet();
-void MainMenuM1();
-int MainMenuM2();
+void Menu1();
+int Menu2();
+void Menu3();
 void readDataFromFile(string);
 string showExistingFiles();
-void M2MenuChoice(int);
+void Menu2Choice(int);
+void editChoice();
+void updateFile(string);
 
 int main()
 {
-    //Create database first > Immediately create attendance sheet > Show menu to
-    //choose whether to add more attendance sheet to the db or to load and edit
-    //the existing attendance sheet (also referred to as files).
+    //Create database first then immediately create attendance sheet
     string termName;
     cout << "============================================\n";
     cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 2\n";
     cout << "============================================\n\n";
-
     cout << "Create School Term (Database)" << endl;
     cout << "-------------------------------------------\n";
     cout << "Enter term name: ";
@@ -70,16 +70,18 @@ int main()
     cout << "Database \"" << termName << "\" created and loaded." << endl << endl;
     cin.ignore();
 
-    int choice=1;
-    M2MenuChoice(choice);
+    int choice=1; //Choice set to 1 for the first run as user need to create attendance sheet first.
+    Menu2Choice(choice);
     return 0;
 }
 
-void M2MenuChoice(int choice){
+void Menu2Choice(int choice){
     while(choice == 1){ //1.Create new attendance sheet.
         createNewAttendanceSheet();
-        choice = MainMenuM2();
-        database[numSheet] = sheetName + ".csv"; //Add the created attendance sheet to the db (the
+        //Show menu to choose whether to add more attendance sheet to the db or to
+        //load and edit the existing attendance sheet (also referred to as files).
+        choice = Menu2();
+        database[numSheet] = sheetName; //Add the created attendance sheet to the db (the
         numSheet++;                              //db is an array with names of files as elements).
     }
 
@@ -88,11 +90,11 @@ void M2MenuChoice(int choice){
         if (numSheet == 1){
             loadingFileName = sheetName + ".csv";
             readDataFromFile(loadingFileName); //Immediately load the only existing file
-        }                                             //if there exists only one file.
+        }                                      //if there exists only one file.
         else if (numSheet > 1){
             //If there are more than one existing file, display the names
             //of the files and let user choose which file to load.
-            loadingFileName = showExistingFiles();
+            loadingFileName = showExistingFiles() + ".csv";
             readDataFromFile(loadingFileName); //Load the chosen file.
         }
     }
@@ -106,7 +108,7 @@ string showExistingFiles(){
     int fileToLoad;
     string loadingFileName;
     cout << "-------------------------------------------\n";
-    cout << "\tExisting Files" << endl;
+    cout << "\t      Existing Files" << endl;
     cout << "-------------------------------------------\n";
     for (int i = 0; i < numSheet; i++){
         cout << i + 1 << ". " << database[i] << endl;
@@ -115,7 +117,7 @@ string showExistingFiles(){
         cout << "\nPlease choose which file to load [1-" << numSheet << "]: ";
         cin >> fileToLoad;
     }while(fileToLoad < 1 || fileToLoad > numSheet); //User choose which file to load
-    loadingFileName = database[fileToLoad - 1];   //by choosing the number.
+    loadingFileName = database[fileToLoad - 1];      //by choosing the number.
     return loadingFileName;
 }
 
@@ -128,97 +130,169 @@ void readDataFromFile(string filename){
         cout << "\nError opening the file \"" << filename << "\"." << endl;
         //If file fail to open, user prompted to choose
         //either to exit or load the files again.
-
-        /* help idk if this part is needed
-
-        int choice;
-        cout << "\n-------------------------------------------\n";
-        cout << "Main Menu Milestone 2\n";
-        cout << "-------------------------------------------\n";
-        cout << "1. Load Existing Attendance Sheet(s)\n";
-        cout << "2. Exit Program\n\n";
-        cout << "Please Enter Your Choice: ";
-        cin >> choice;
-        while (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Error: Invalid input. Please enter a valid number.\n\n";
-            cin >> choice;
-        }
-        cin.ignore();
-
-        choice++;
-        M2MenuChoice(choice);
-        */
+        Menu3();
     }
     else {
+        cout << "Reading attendance data from file..." << endl;
+        cout << "Successfully loaded: " << filename << endl;
         while(readFile){
             getline(readFile, loadedFile); //Read and show file contents (attendance data).
             cout << loadedFile << endl;
         }
-        // ADD FUNCTION TO EDIT SHEET HERE
+        editChoice();
     }
     readFile.close();
 }
 
+void Menu3(){
+    int choice;
+    cout << "\n-------------------------------------------\n";
+    cout << "\tMain Menu Milestone 2\n";
+    cout << "-------------------------------------------\n";
+    cout << "1. Load Existing Attendance Sheet(s)\n";
+    cout << "2. Exit Program\n\n";
+    cout << "Please Enter Your Choice: ";
+    cin >> choice;
+    while (cin.fail())
+    {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Error: Invalid input. Please enter a valid number.\n\n";
+        cin >> choice;
+    }
+    cin.ignore();
+
+    choice++;
+    Menu2Choice(choice);
+}
+
+void editChoice(){
+    int choice;
+    cout << "-------------------------------------------\n";
+    cout << "\t         Edit Menu\n";
+    cout << "-------------------------------------------\n";
+    cout << "1. Update Row\n";
+    cout << "2. Delete Row\n";
+    cout << "3. Count Row\n";
+    cout << "4. Save Edited Sheet\n";
+    do{
+        cout << "Please Enter Your Choice: ";
+        cin >> choice;
+    }while(choice < 1 || choice > 4);
+
+    if (choice == 1){
+        //update row function
+    }
+    else if (choice == 2){
+        //delete row function
+    }
+    else if (choice == 3){
+        //count row function
+    }
+    else if (choice == 4){
+        //updateFile();
+        Menu3();
+    }
+}
+
+void updateFile(string filename){
+    string updatedFileName;
+    ofstream updatedFile;
+    updatedFileName = filename + "_Updated.csv";
+    updatedFile.open(updatedFileName);
+    cout << "\n-------------------------------------------\n";
+    cout << "Writing updated sheet to output file...\n";
+    if(!updatedFile){
+        cout << "\nError opening the file \"" << filename << "\"." << endl;
+    }
+    else{
+        updatedFile << "\n-------------------------------------------\n";
+        updatedFile << "             Attendance Sheet\n";
+        updatedFile << "-------------------------------------------\n";
+
+        for (int i = 0; i < numColumns; i++){
+            updatedFile << columnNames[i];
+            if (i != (numColumns - 1)){
+                updatedFile << ", ";
+            }
+        }
+        updatedFile << endl;
+
+        for (int row = 0; row < numRows; row++){
+            for (int column = 0; column < numColumns; column++){
+                updatedFile << sheetData[row][column];
+                if (column != (numColumns - 1)){
+                    updatedFile << ", ";
+                }
+            }
+            updatedFile << endl;
+        }
+        cout << "Output saved as: " << updatedFileName << endl;
+        cout << "-------------------------------------------\n";
+        database[numSheet] = updatedFileName;
+        numSheet++;
+    }
+    updatedFile.close();
+}
+
 void createNewAttendanceSheet(){
 
-    if (numRows >= MAX_SHEET) {
-            cout << "Error: Maximum row limit reached.\n";
-            return;
-        }
+    if (numSheet >= MAX_SHEET){
+        cout << "Error: Maximum sheet limit reached.\n";
+        return;
+    }
+    else{
+        int choice;
 
-    int choice;
+        cout << "============================================\n";
+        cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
+        cout << "============================================\n";
 
-    cout << "============================================\n";
-    cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
-    cout << "============================================\n";
+        createSheet();
+        insertRow();
 
-    createSheet();
-    insertRow();
-
-    while(true)
-    {
-        MainMenuM1();
-        cout << "\nPlease Enter Your Choice: ";
-        cin >> choice;
-
-        while (cin.fail())
+        while(true)
         {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Error: Invalid input. Please enter a valid number.\n\n";
+            Menu1();
+            cout << "\nPlease Enter Your Choice: ";
             cin >> choice;
-        }
-        cin.ignore();
 
-        switch (choice)
-        {
-        case 1:
-            insertRow();
-            break;
+            while (cin.fail())
+            {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Error: Invalid input. Please enter a valid number.\n\n";
+                cin >> choice;
+            }
+            cin.ignore();
 
-        case 2:
-            viewSheetCSV();
-            break;
+            switch (choice)
+            {
+            case 1:
+                insertRow();
+                break;
 
-        case 3:
-            createCSVfile(sheetName);
-            return;
+            case 2:
+                viewSheetCSV();
+                break;
 
-        default:
-            cout << "\nError: Invalid menu choice. Please try again.\n\n";
-            break;
+            case 3:
+                createCSVfile();
+                return;
+
+            default:
+                cout << "\nError: Invalid menu choice. Please try again.\n\n";
+                break;
+            }
         }
     }
 }
 
 //Function to display menu choices after attendance sheet created and filled.
-int MainMenuM2(){
+int Menu2(){
     int choice;
     cout << "\n-------------------------------------------\n";
-    cout << "Main Menu Milestone 2\n";
+    cout << "\tMain Menu Milestone 2\n";
     cout << "-------------------------------------------\n";
     cout << "1. Create New Attendance Sheet\n";
     cout << "2. Load Existing Attendance Sheet(s)\n";
@@ -377,10 +451,10 @@ void viewSheetCSV() {
     }
 }
 
-void MainMenuM1()
+void Menu1()
 {
     cout << "\n-------------------------------------------\n";
-    cout << "Main Menu Milestone 1\n";
+    cout << "\tMain Menu Milestone 1\n";
     cout << "-------------------------------------------\n";
     cout << "1. Insert More Rows\n";
     cout << "2. View Attendance Sheet (CSV)\n";
@@ -390,7 +464,7 @@ void MainMenuM1()
 //Function to save the attendance data into a csv file.
 //The idea is the same as the viewSheetCSV() function but instead of
 //outputting on the terminal, we write into a file.
-void createCSVfile(string sheetName){
+void createCSVfile(){
     ofstream outputFile;
     string filename;
     filename = sheetName + ".csv";
