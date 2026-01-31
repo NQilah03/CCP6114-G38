@@ -38,22 +38,24 @@ int numColumns = 0;
 int numRows = 0;
 int numSheet = 0;
 bool sheetExist = false;
+string chosenFile;
+bool sheetUpdated = false;
 
 // Function Prototypes
+void createNewAttendanceSheet();
 void createSheet();
 void insertRow();
 void viewSheetCSV();
 void createCSVfile();
 bool isValidInt(string value);
 bool isValidText(string value);
-void createNewAttendanceSheet();
 void Menu1();
 int Menu2();
-void Menu3();
-void readDataFromFile(string);
-string showExistingFiles();
 void Menu2Choice(int);
-void editChoice();
+void Menu3();
+void editMenu();
+string showExistingFiles();
+void readDataFromFile(string);
 void updateFile(string);
 
 int main()
@@ -70,8 +72,38 @@ int main()
     cout << "Database \"" << termName << "\" created and loaded." << endl << endl;
     cin.ignore();
 
-    int choice=1; //Choice set to 1 for the first run as user need to create attendance sheet first.
-    Menu2Choice(choice);
+    string dbContents, fileList[MAX_SHEET];
+    ifstream dbExist;
+    dbExist.open("database.txt");
+    if(!dbExist){
+        int choice=1; //Choice set to 1 for the first run as user need to create attendance sheet first.
+        Menu2Choice(choice);
+    }
+    else{
+        int numFile = 0;
+        while(dbExist){
+            getline(dbExist, dbContents);
+            fileList[numFile] = dbContents;
+            numFile++;
+        }
+
+        int fileToLoad;
+        string loadingFileName;
+        cout << "-------------------------------------------\n";
+        cout << "\t      Existing Files" << endl;
+        cout << "-------------------------------------------\n";
+        for (int i = 0; i < (numFile-1); i++){
+            cout << i + 1 << ". " << fileList[i] << endl;
+        } //Show the existing files, numbered.
+        do{
+            cout << "\nPlease choose which file to load [1-" << (numFile-1) << "]: ";
+            cin >> fileToLoad;
+        }while(fileToLoad < 1 || fileToLoad > (numFile-1)); //User choose which file to load
+        loadingFileName = fileList[fileToLoad - 1];      //by choosing the number.
+        readDataFromFile(loadingFileName);
+    }
+    dbExist.close();
+
     return 0;
 }
 
@@ -82,19 +114,31 @@ void Menu2Choice(int choice){
         //load and edit the existing attendance sheet (also referred to as files).
         choice = Menu2();
         database[numSheet] = sheetName; //Add the created attendance sheet to the db (the
-        numSheet++;                              //db is an array with names of files as elements).
+        numSheet++;                     //db is an array with names of files as elements).
+        
+        fstream dbFile;
+        dbFile.open("database.txt", ios::app);
+        if (!dbFile){
+            cout << "Error creating file 'database.txt'." << endl;
+        }
+        else {
+            dbFile << sheetName << ".csv" << endl;
+        }
+        dbFile.close();
     }
 
     if (choice == 2){ //2.Load existing files.
         string loadingFileName;
         if (numSheet == 1){
+            chosenFile = sheetName;
             loadingFileName = sheetName + ".csv";
             readDataFromFile(loadingFileName); //Immediately load the only existing file
         }                                      //if there exists only one file.
         else if (numSheet > 1){
             //If there are more than one existing file, display the names
             //of the files and let user choose which file to load.
-            loadingFileName = showExistingFiles() + ".csv";
+            chosenFile = showExistingFiles();
+            loadingFileName =  chosenFile + ".csv";
             readDataFromFile(loadingFileName); //Load the chosen file.
         }
     }
@@ -133,13 +177,13 @@ void readDataFromFile(string filename){
         Menu3();
     }
     else {
-        cout << "Reading attendance data from file..." << endl;
+        cout << "\nReading attendance data from file..." << endl;
         cout << "Successfully loaded: " << filename << endl;
         while(readFile){
-            getline(readFile, loadedFile); //Read and show file contents (attendance data).
-            cout << loadedFile << endl;
+            getline(readFile, loadedFile); //Read and show file contents
+            cout << loadedFile << endl;    //(attendance data) line by line.
         }
-        editChoice();
+        editMenu();
     }
     readFile.close();
 }
@@ -166,15 +210,22 @@ void Menu3(){
     Menu2Choice(choice);
 }
 
-void editChoice(){
-    int choice;
+void editMenu(){
     cout << "-------------------------------------------\n";
     cout << "\t         Edit Menu\n";
     cout << "-------------------------------------------\n";
     cout << "1. Update Row\n";
     cout << "2. Delete Row\n";
     cout << "3. Count Row\n";
-    cout << "4. Save Edited Sheet\n";
+
+    if (sheetUpdated){
+        cout << "4. Save Edited Sheet and Exit\n";
+    }
+    else if (!sheetUpdated){
+        cout << "4. Exit Program\n";
+    }
+
+    int choice;
     do{
         cout << "Please Enter Your Choice: ";
         cin >> choice;
@@ -182,16 +233,20 @@ void editChoice(){
 
     if (choice == 1){
         //update row function
+        sheetUpdated = true;
     }
     else if (choice == 2){
         //delete row function
+        sheetUpdated = true;
     }
     else if (choice == 3){
         //count row function
     }
     else if (choice == 4){
-        //updateFile();
-        Menu3();
+        if (sheetUpdated){
+            updateFile(chosenFile);
+        }
+        return;
     }
 }
 
