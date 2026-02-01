@@ -69,6 +69,7 @@ bool isValidInt(string value);
 bool isValidText(string value);
 int findStudentIdCol();
 string getIntInputLine(string prompt);
+void inferColumnTypes();
 
 
 int main()
@@ -144,7 +145,10 @@ void loadAttendanceFile(string filename) {
     }
 
     // Clear old data
-    for (int i = 0; i < MAX_COLUMNS; i++) columnNames[i] = "";
+    for (int i = 0; i < MAX_COLUMNS; i++) {
+        columnNames[i] = "";
+        columnTypes[i] = "";
+    }
     for (int r = 0; r < MAX_ROWS; r++)
         for (int c = 0; c < MAX_COLUMNS; c++)
             sheetData[r][c] = "";
@@ -177,6 +181,31 @@ void loadAttendanceFile(string filename) {
     }
 
     f.close();
+
+    inferColumnTypes();
+}
+
+// Function to infer column types from data
+void inferColumnTypes() {
+    for (int col = 0; col < numColumns; col++) {
+        columnTypes[col] = "INT"; // Initialize all columns to INT
+    }
+
+    // Check all columns, if the value is not INT, change them to TEXT
+    for (int col = 0; col < numColumns; col++) {
+        for (int row = 0; row < numRows; row++) {
+            if (!isValidInt(sheetData[row][col])) {
+                columnTypes[col] = "TEXT";
+                break;
+            }
+        }
+    }
+    // Set column Types for student ID as INT
+    for (int col = 0; col < numColumns; col++) {
+        if (columnNames[col] == "StudentID") {
+            columnTypes[col] = "INT";
+        }
+    }
 }
 
 //Function to save the attendance data into a csv file.
@@ -210,12 +239,17 @@ void createCSVfile(string sheetName){
         cout << "\nThe file \"" << filename << "\" has been created. Please check your folders." << endl;
 
         // Reset for next sheet
-        for (int i = 0; i < numColumns; i++) columnNames[i] = "";
+        /*
+        for (int i = 0; i < numColumns; i++) {
+           columnNames[i] = "";
+           columnTypes[i] = "";
+        }
         for (int r = 0; r < numRows; r++)
             for (int c = 0; c < numColumns; c++)
                 sheetData[r][c] = "";
 
         numRows = 0;
+    */
     }
     outputFile.close();
 }
@@ -314,21 +348,7 @@ void insertRow() {
                     continue;
                 }
             }
-            if (columnTypes[col] == "INT") {
-                if (!isValidInt(input)) {
-                    cout << "Error: Invalid INT value. Please enter a number.\n";
-                    continue;
-                }
-            }
-            else if (columnTypes[col] == "TEXT") {
-                if (!isValidText(input)) {
-                    cout << "Error: Invalid TEXT value. Please enter text.\n";
-                    continue;
-                }
-            }
 
-            sheetData[numRows][col] = input;
-            break;
             sheetData[numRows][col] = input;
             break;
             }
@@ -402,7 +422,6 @@ void displayCurrentSheet() {
 void MainMenuM1()
 {
     cout << "\n-------------------------------------------\n";
-    cout << "Main Menu Milestone 1\n";
     cout << "Main Menu Milestone 1\n";
     cout << "-------------------------------------------\n";
     cout << "1. Insert More Rows\n";
@@ -599,7 +618,7 @@ void deleteAttendanceRow() {
     for (int r = targetRow; r < numRows - 1; r++) {
         for (int c = 0; c < numColumns; c++) {
             sheetData[r][c] = sheetData[r + 1][c];
-        }
+        }S
     }
 
     for (int c = 0; c < numColumns; c++) {
@@ -612,6 +631,9 @@ void deleteAttendanceRow() {
 
     cout << "\nUpdated Sheet:\n";
     printSheetRawCSV();
+
+    createCSVfile(sheetName);
+    cout << "Changes saved to file successfully.";
 }
 
 void countRowsOutput() {
@@ -700,7 +722,9 @@ void updateAttendanceRow() {
         sheetData[targetRow][col] = NewValue; // Update data to new value
     }
 
-cout << "\nRow updated successfully!\n";
-displayCurrentSheet();
+    cout << "\nRow updated successfully!\n";
+    displayCurrentSheet();
 
+    createCSVfile(sheetName);
+    cout << "Changes saved to file successfully.";
 }
