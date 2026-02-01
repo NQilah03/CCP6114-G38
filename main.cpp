@@ -48,6 +48,7 @@ string showExistingFiles(int);
 void editSheetMenuM2();
 void deleteAttendanceRow();
 void countRowsOutput();
+void updateAttendanceRow();
 
 // File functions
 int splitLine(string line, string tokens[], int maxTokens);
@@ -531,8 +532,9 @@ void editSheetMenuM2() {
         cout << "-------------------------------------------\n";
         cout << "1. Display Current Sheet\n";
         cout << "2. Delete Attendance Row\n";
-        cout << "3. Count Rows\n";
-        cout << "4. Exit to Main Menu\n\n";
+        cout << "3. Update Attendance Row\n";
+        cout << "4. Count Rows\n";
+        cout << "5. Exit to Main Menu\n\n";
         cout << "Please Enter Your Choice: ";
 
         cin >> choice;
@@ -551,9 +553,12 @@ void editSheetMenuM2() {
             deleteAttendanceRow();
         }
         else if (choice == 3) {
-            countRowsOutput();
+            updateAttendanceRow();
         }
         else if (choice == 4) {
+            countRowsOutput();
+        }
+        else if (choice == 5) {
             return;
         }
         else {
@@ -569,7 +574,7 @@ void deleteAttendanceRow() {
     cout << "Delete Attendance Row\n";
     cout << "-------------------------------------------\n";
 
-    int sidCol = findStudentIdCol(); // Find the column that containts StudentID
+    int sidCol = findStudentIdCol(); // Find the column that contains StudentID
     if (sidCol == -1) {
         cout << "Error: StudentID column not found.\n";
         return;
@@ -637,4 +642,65 @@ string getIntInputLine(string prompt) {
         }
         return s;
     }
+}
+
+// Function to update attendance row
+void updateAttendanceRow() {
+    cout << "\n-------------------------------------------\n";
+    cout << "Update Attendance Row\n";
+    cout << "-------------------------------------------\n";
+
+    int sidCol = findStudentIdCol(); // Find the column that contains StudentID
+    if (sidCol == -1) {
+        cout << "Error: StudentID column not found.\n";
+        return;
+    }
+
+    string sid = getIntInputLine("Enter StudentID to update: ");
+
+    int targetRow = -1; // Search for matching row
+    for (int r = 0; r < numRows; r++) {
+        if (sheetData[r][sidCol] == sid) {
+            targetRow = r;
+            break;
+        }
+    }
+
+    if (targetRow == -1) {
+        cout << "Error: StudentID does not exist.\n";
+        return;
+    }
+
+    cout << "\nUpdating row for StudentID " << sid << endl;
+
+    for (int col=0; col<numColumns; col++) {
+        cout << columnNames[col] << " [" << sheetData[targetRow][col] << "]: ";
+        string NewValue;
+        getline(cin, NewValue); // Enter the new data
+
+        if (NewValue.empty()) continue; // Keep the old data if the new value is blank
+
+        if (columnTypes[col] == "INT") {
+            while (!isValidInt(NewValue)) {
+                cout << "Please enter a valid number (press Enter to skip): ";
+                getline(cin, NewValue);
+                if (NewValue.empty()) break;
+            }
+            if (NewValue.empty()) continue;
+        }
+        else if (columnTypes[col] == "TEXT") {
+            while (!isValidText(NewValue)) {
+                cout << "Please enter a valid text (press Enter to skip): ";
+                getline(cin, NewValue);
+                if (NewValue.empty()) break;
+            }
+            if (NewValue.empty()) continue;
+        }
+
+        sheetData[targetRow][col] = NewValue; // Update data to new value
+    }
+
+cout << "\nRow updated successfully!\n";
+displayCurrentSheet();
+
 }
