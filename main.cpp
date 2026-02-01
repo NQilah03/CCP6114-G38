@@ -26,13 +26,11 @@ using namespace std;
 const int MAX_COLUMNS = 10;
 const int MAX_ROWS = 100;
 const int MAX_SHEET = 100;
-const int MAX_SHEET = 100;
 
 // Global Variables
 string sheetName = "";
 string columnNames[MAX_COLUMNS];
 string columnTypes[MAX_COLUMNS];
-string database[MAX_SHEET];
 string database[MAX_SHEET];
 string sheetData[MAX_ROWS][MAX_COLUMNS];
 int numColumns = 0;
@@ -117,7 +115,7 @@ bool isValidText(string value) {
 int splitLine(string line, string tokens[], int maxTokens) {
     int count = 0;
     string token = "";
-    
+
     // Go through each character in the line
     for (int i = 0; i < line.length(); i++) {
         if (line[i] == ',') {
@@ -128,10 +126,10 @@ int splitLine(string line, string tokens[], int maxTokens) {
             token = token + line[i];
         }
     }
-    
+
     tokens[count] = token;
     count++;
-    
+
     return count;
 }
 
@@ -355,7 +353,7 @@ void viewSheetCSV() {
 
     //Loop through each elements in the columnName[] array to display the column names.
     for (int i = 0; i < numColumns; i++){
-        cout << columnNames[i];           
+        cout << columnNames[i];
         if (i != (numColumns - 1)){
             cout << ", "; //Add comma between elements
         }
@@ -440,7 +438,7 @@ void M2MenuChoice(int choice, int sheet){
         createNewAttendanceSheet();
         choice = MainMenuM2();
         database[sheet] = sheetName + ".csv";
-        sheet++;                              
+        sheet++;
     }
 
     if (choice == 2){ //2.Load existing files
@@ -448,7 +446,7 @@ void M2MenuChoice(int choice, int sheet){
         if (sheet == 1){
             loadingFileName = sheetName + ".csv";
             readDataFromFile(loadingFileName);
-        }                                            
+        }
         else if (sheet > 1){
             //If more than one file, display file list & let user choose which file to load
             loadingFileName = showExistingFiles(sheet);
@@ -593,7 +591,7 @@ void deleteAttendanceRow() {
     }
 
     // Shift rows upward to remove the selected row
-    for (int r = targetRow; r < numRows - 1; r++) { 
+    for (int r = targetRow; r < numRows - 1; r++) {
         for (int c = 0; c < numColumns; c++) {
             sheetData[r][c] = sheetData[r + 1][c];
         }
