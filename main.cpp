@@ -29,7 +29,6 @@ const int MAX_SHEET = 100;
 
 // Global Variables
 string termName = "";
-string sheetName = "";
 string columnNames[MAX_COLUMNS];
 string columnTypes[MAX_COLUMNS];
 string database[MAX_SHEET];
@@ -40,8 +39,8 @@ int numRows = 0;
 // Function Prototypes
 
 // Milestone 1 functions
-void createNewAttendanceSheet();
-void createSheet();
+string createNewAttendanceSheet();
+string createSheet();
 void insertRow();
 
 // Milestone 2 functions
@@ -243,7 +242,8 @@ void readDataFromFile(string filename){
     readFile.close();
 }
 
-void createSheet() {
+string createSheet() {
+    string sheetName;
     cout << "\nEnter attendance sheet name: ";
     getline(cin, sheetName);
     cout << "Attendance sheet \"" << sheetName << "\" created successfully." << endl << endl;
@@ -261,16 +261,18 @@ void createSheet() {
     columnTypes[2] = "INT";
 
     cout << "Sheet structure created successfully." << endl << endl;
+    return sheetName;
 }
 
-void createNewAttendanceSheet(){
+string createNewAttendanceSheet(){
     int choice;
+    string sheetName;
 
     cout << "============================================\n";
     cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
     cout << "============================================\n";
 
-    createSheet();
+    sheetName = createSheet();
     insertRow();
 
     while(true)
@@ -300,7 +302,7 @@ void createNewAttendanceSheet(){
 
         case 3:
             createCSVfile(sheetName);
-            return;
+            return sheetName;
 
         default:
             cout << "\nError: Invalid menu choice. Please try again.\n\n";
@@ -471,20 +473,27 @@ int MainMenuM2(){
 
 void M2MenuChoice(int choice, int sheet){
     while(choice == 1){ //1.Create new attendance sheet
-        createNewAttendanceSheet();
-        choice = MainMenuM2();
+        string sheetName = createNewAttendanceSheet();
         database[sheet] = sheetName + ".csv";
-        sheet++;                              
+        sheet++;
+        choice = MainMenuM2();                           
     }
 
     if (choice == 2){ //2.Load existing files
+        if (sheet == 0) {
+            // No sheets created yet
+            cout << "\nError: No attendance sheets available to load.\n";
+            cout << "Please create a new attendance sheet first.\n";
+            return;
+        }
+        
         string loadingFileName;
         if (sheet == 1){
-            loadingFileName = sheetName + ".csv";
+            loadingFileName = database[0];
             readDataFromFile(loadingFileName);
         }                                            
         else if (sheet > 1){
-            //If more than one file, display file list & let user choose which file to load
+            // Multiple files exist, let user choose
             loadingFileName = showExistingFiles(sheet);
             readDataFromFile(loadingFileName);
         }
