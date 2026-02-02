@@ -26,13 +26,12 @@ using namespace std;
 const int MAX_COLUMNS = 10;
 const int MAX_ROWS = 100;
 const int MAX_SHEET = 100;
-const int MAX_SHEET = 100;
 
 // Global Variables
+string termName = "";
 string sheetName = "";
 string columnNames[MAX_COLUMNS];
 string columnTypes[MAX_COLUMNS];
-string database[MAX_SHEET];
 string database[MAX_SHEET];
 string sheetData[MAX_ROWS][MAX_COLUMNS];
 int numColumns = 0;
@@ -64,6 +63,7 @@ void M2MenuChoice(int, int);
 void viewSheetCSV();
 void printSheetRawCSV();
 void displayCurrentSheet();
+void viewTermName();
 
 // Helper functions
 bool isValidInt(string value);
@@ -74,7 +74,6 @@ string getIntInputLine(string prompt);
 
 int main()
 {
-    string termName;
     cout << "============================================\n";
     cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 2\n";
     cout << "============================================\n\n";
@@ -303,35 +302,21 @@ void insertRow() {
                 cout << "Enter " << columnNames[col] << ": ";
                 getline(cin, input);
 
-            if (columnTypes[col] == "INT") {
-                if (!isValidInt(input)) {
-                    cout << "Error: Invalid INT value. Please enter a number.\n";
-                    continue;
+                if (columnTypes[col] == "INT") {
+                    if (!isValidInt(input)) {
+                        cout << "Error: Invalid INT value. Please enter a number.\n";
+                        continue;
+                    }
                 }
-            }
-            else if (columnTypes[col] == "TEXT") {
-                if (!isValidText(input)) {
-                    cout << "Error: Invalid TEXT value. Please enter text.\n";
-                    continue;
+                else if (columnTypes[col] == "TEXT") {
+                    if (!isValidText(input)) {
+                        cout << "Error: Invalid TEXT value. Please enter text.\n";
+                        continue;
+                    }
                 }
-            }
-            if (columnTypes[col] == "INT") {
-                if (!isValidInt(input)) {
-                    cout << "Error: Invalid INT value. Please enter a number.\n";
-                    continue;
-                }
-            }
-            else if (columnTypes[col] == "TEXT") {
-                if (!isValidText(input)) {
-                    cout << "Error: Invalid TEXT value. Please enter text.\n";
-                    continue;
-                }
-            }
 
-            sheetData[numRows][col] = input;
-            break;
-            sheetData[numRows][col] = input;
-            break;
+                sheetData[numRows][col] = input;
+                break;
             }
         }
 
@@ -403,7 +388,6 @@ void displayCurrentSheet() {
 void MainMenuM1()
 {
     cout << "\n-------------------------------------------\n";
-    cout << "Main Menu Milestone 1\n";
     cout << "Main Menu Milestone 1\n";
     cout << "-------------------------------------------\n";
     cout << "1. Insert More Rows\n";
@@ -506,6 +490,16 @@ void createNewAttendanceSheet(){
     }
 }
 
+void ViewTermName() {
+    if (termName.empty()) {
+        cout << "No term created yet.\n";
+    } else {
+        cout << "\n-------------------------------------------\n";
+        cout << "Term Name: " << termName << endl;
+        cout << "-------------------------------------------\n";
+    }
+}
+
 
 //Function to show all existing files and let user choose the file to load.
 string showExistingFiles(int sheet){
@@ -531,10 +525,11 @@ void editSheetMenuM2() {
         cout << "\n-------------------------------------------\n";
         cout << "Main Menu Milestone 2 (Edit Loaded Sheet)\n";
         cout << "-------------------------------------------\n";
-        cout << "1. Display Current Sheet\n";
-        cout << "2. Delete Attendance Row\n";
-        cout << "3. Count Rows\n";
-        cout << "4. Exit to Main Menu\n\n";
+        cout << "1. View Term Name\n";
+        cout << "2. Display Current Sheet\n";
+        cout << "3. Delete Attendance Row\n";
+        cout << "4. Count Rows\n";
+        cout << "5. Exit to Main Menu\n\n";
         cout << "Please Enter Your Choice: ";
 
         cin >> choice;
@@ -547,15 +542,18 @@ void editSheetMenuM2() {
         cin.ignore();
 
         if (choice == 1) {
-            displayCurrentSheet();
+            viewTermName();
         }
         else if (choice == 2) {
-            deleteAttendanceRow();
+            displayCurrentSheet();
         }
         else if (choice == 3) {
-            countRowsOutput();
+            deleteAttendanceRow();
         }
         else if (choice == 4) {
+            countRowsOutput();
+        }
+        else if (choice == 5) {
             return;
         }
         else {
