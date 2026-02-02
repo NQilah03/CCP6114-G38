@@ -29,7 +29,6 @@ const int MAX_SHEET = 100;
 
 // Global Variables
 string termName = "";
-string sheetName = "";
 string columnNames[MAX_COLUMNS];
 string columnTypes[MAX_COLUMNS];
 string database[MAX_SHEET];
@@ -40,22 +39,24 @@ int numRows = 0;
 // Function Prototypes
 
 // Milestone 1 functions
-void createNewAttendanceSheet();
-void createSheet();
+string createNewAttendanceSheet();
+string createSheet();
 void insertRow();
 
 // Milestone 2 functions
 string showExistingFiles(int);
-void editSheetMenuM2();
-void deleteAttendanceRow();
+void editSheetMenuM2(string);
+void deleteAttendanceRow(string);
 void countRowsOutput();
-void updateAttendanceRow();
+void updateAttendanceRow(string);
+void insertRowM2(string);
 
 // File functions
 int splitLine(string line, string tokens[], int maxTokens);
 void loadAttendanceFile(string filename);
 void createCSVfile(string);
 void readDataFromFile(string filename);
+void saveCSVfile(string filename);
 
 // Display functions
 void MainMenuM1();
@@ -117,7 +118,7 @@ bool isValidText(string value) {
 int splitLine(string line, string tokens[], int maxTokens) {
     int count = 0;
     string token = "";
-    
+
     // Go through each character in the line
     for (int i = 0; i < line.length(); i++) {
         if (line[i] == ',') {
@@ -128,15 +129,14 @@ int splitLine(string line, string tokens[], int maxTokens) {
             token = token + line[i];
         }
     }
-    
+
     tokens[count] = token;
     count++;
-    
+
     return count;
 }
 
 // Loads attendance data from a CSV file into memory
-// Assumes the first column is StudentID (INT)
 void loadAttendanceFile(string filename) {
     ifstream f(filename);
     if (!f) {
@@ -145,7 +145,10 @@ void loadAttendanceFile(string filename) {
     }
 
     // Clear old data
-    for (int i = 0; i < MAX_COLUMNS; i++) columnNames[i] = "";
+    for (int i = 0; i < MAX_COLUMNS; i++) {
+        columnNames[i] = "";
+        columnTypes[i] = "";
+    }
     for (int r = 0; r < MAX_ROWS; r++)
         for (int c = 0; c < MAX_COLUMNS; c++)
             sheetData[r][c] = "";
@@ -178,11 +181,14 @@ void loadAttendanceFile(string filename) {
     }
 
     f.close();
+
+    // Set fixed column types for Milestone 2
+    columnTypes[0] = "INT";  // StudentID
+    columnTypes[1] = "TEXT"; // Name
+    columnTypes[2] = "INT";  // Status
 }
 
 //Function to save the attendance data into a csv file.
-//The idea is the same as the viewSheetCSV() function but instead of
-//outputting on the terminal, we write into a file.
 void createCSVfile(string sheetName){
     ofstream outputFile;
     string filename = sheetName + ".csv";
@@ -211,7 +217,10 @@ void createCSVfile(string sheetName){
         cout << "\nThe file \"" << filename << "\" has been created. Please check your folders." << endl;
 
         // Reset for next sheet
-        for (int i = 0; i < numColumns; i++) columnNames[i] = "";
+        for (int i = 0; i < numColumns; i++) {
+            columnNames[i] = "";
+            columnTypes[i] = "";
+        }
         for (int r = 0; r < numRows; r++)
             for (int c = 0; c < numColumns; c++)
                 sheetData[r][c] = "";
@@ -220,6 +229,37 @@ void createCSVfile(string sheetName){
     }
     outputFile.close();
 }
+
+// Function to save updated or deleted data to file
+void saveCSVfile(string filename) {
+    ofstream outputFile;
+    outputFile.open(filename);
+
+    if(!outputFile){
+        cout << "\nError opening the file \"" << filename << "\"." << endl;
+    }
+    else{
+        // Header (CSV)
+        for (int i = 0; i < numColumns; i++){
+            outputFile << columnNames[i];
+            if (i != (numColumns - 1)) outputFile << ",";
+        }
+        outputFile << "\n";
+
+        // Rows (CSV)
+        for (int row = 0; row < numRows; row++){
+            for (int col = 0; col < numColumns; col++){
+                outputFile << sheetData[row][col];
+                if (col != (numColumns - 1)) outputFile << ",";
+            }
+            outputFile << "\n";
+        }
+        cout << "\nChanges saved to file successfully.\n";
+    }
+
+    outputFile.close();
+}
+
 
 //Function to read attendance data from the attendance csv file.
 void readDataFromFile(string filename){
@@ -233,17 +273,17 @@ void readDataFromFile(string filename){
         cout << "Successfully loaded: " << filename << "\n\n";
 
         // Load the file contents into columnNames[] and sheetData[] arrays
-        // This allows the data to be edited
         loadAttendanceFile(filename);
 
         viewSheetCSV(); // Display the loaded sheet to the user
-        editSheetMenuM2();
+        editSheetMenuM2(filename);  // Pass filename to edit menu
     }
 
     readFile.close();
 }
 
-void createSheet() {
+string createSheet() {
+    string sheetName;
     cout << "\nEnter attendance sheet name: ";
     getline(cin, sheetName);
     cout << "Attendance sheet \"" << sheetName << "\" created successfully." << endl << endl;
@@ -261,16 +301,18 @@ void createSheet() {
     columnTypes[2] = "INT";
 
     cout << "Sheet structure created successfully." << endl << endl;
+    return sheetName;
 }
 
-void createNewAttendanceSheet(){
+string createNewAttendanceSheet(){
     int choice;
+    string sheetName;
 
     cout << "============================================\n";
     cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
     cout << "============================================\n";
 
-    createSheet();
+    sheetName = createSheet();
     insertRow();
 
     while(true)
@@ -300,7 +342,7 @@ void createNewAttendanceSheet(){
 
         case 3:
             createCSVfile(sheetName);
-            return;
+            return sheetName;
 
         default:
             cout << "\nError: Invalid menu choice. Please try again.\n\n";
@@ -382,6 +424,57 @@ void insertRow() {
     }
 }
 
+void insertRowM2(string currentFilename) {
+    string input;
+
+    while (true) {
+        cout << "\n-------------------------------------------\n";
+        cout << "Insert New Attendance Row\n";
+        cout << "-------------------------------------------\n";
+
+        if (numRows >= MAX_ROWS) {
+            cout << "Error: Maximum row limit reached.\n";
+            return;
+        }
+
+        for (int col = 0; col < numColumns; col++) {
+            while (true){
+                cout << "Enter " << columnNames[col] << " (" << columnTypes[col] << "): ";
+                getline(cin, input);
+
+                if (columnTypes[col] == "INT") {
+                    if (!isValidInt(input)) {
+                        cout << "Error: Invalid INT value. Please enter a number.\n";
+                        continue;
+                    }
+                }
+                else if (columnTypes[col] == "TEXT") {
+                    if (!isValidText(input)) {
+                        cout << "Error: Invalid TEXT value. Please enter text.\n";
+                        continue;
+                    }
+                }
+
+                sheetData[numRows][col] = input;
+                break;
+            }
+        }
+
+        numRows++;
+        cout << "Row inserted successfully.\n\n";
+
+        // Auto save new row to file
+        saveCSVfile(currentFilename);
+
+        cout << "Insert another row? (Y/N): ";
+        getline(cin, input);
+
+        if (input != "Y" && input != "y") {
+            break;
+        }
+    }
+}
+
 //Function to view the attendance data in CSV, not in file.
 void viewSheetCSV() {
     cout << "\n-------------------------------------------\n";
@@ -390,7 +483,7 @@ void viewSheetCSV() {
 
     //Loop through each elements in the columnName[] array to display the column names.
     for (int i = 0; i < numColumns; i++){
-        cout << columnNames[i];           
+        cout << columnNames[i];
         if (i != (numColumns - 1)){
             cout << ", "; //Add comma between elements
         }
@@ -471,20 +564,27 @@ int MainMenuM2(){
 
 void M2MenuChoice(int choice, int sheet){
     while(choice == 1){ //1.Create new attendance sheet
-        createNewAttendanceSheet();
-        choice = MainMenuM2();
+        string sheetName = createNewAttendanceSheet();
         database[sheet] = sheetName + ".csv";
-        sheet++;                              
+        sheet++;
+        choice = MainMenuM2();                           
     }
 
     if (choice == 2){ //2.Load existing files
+        if (sheet == 0) {
+            // No sheets created yet
+            cout << "\nError: No attendance sheets available to load.\n";
+            cout << "Please create a new attendance sheet first.\n";
+            return;
+        }
+        
         string loadingFileName;
         if (sheet == 1){
-            loadingFileName = sheetName + ".csv";
+            loadingFileName = database[0];
             readDataFromFile(loadingFileName);
-        }                                            
+        }
         else if (sheet > 1){
-            //If more than one file, display file list & let user choose which file to load
+            // Multiple files exist, let user choose
             loadingFileName = showExistingFiles(sheet);
             readDataFromFile(loadingFileName);
         }
@@ -494,25 +594,23 @@ void M2MenuChoice(int choice, int sheet){
     }
 }
 
-void updateAttendanceRow() {
+void updateAttendanceRow(string currentFilename) {
     cout << "\n-------------------------------------------\n";
     cout << "Update Attendance Row\n";
     cout << "-------------------------------------------\n";
-    int sidCol, targetRow, choice;
-    string sid, newName, newStatus;
 
-    sidCol = findStudentIdCol();
+    int sidCol = findStudentIdCol();
     if (sidCol == -1) {
         cout << "Error: StudentID column not found.\n";
         return;
     }
 
-    sid = getIntInputLine("Enter StudentID to update: ");
+    string sid = getIntInputLine("Enter StudentID to update: ");
 
-    targetRow = -1;
-    for (int i = 0; i < numRows; i++) {
-        if (sheetData[i][sidCol] == sid) {
-            targetRow = i;
+    int targetRow = -1;
+    for (int r = 0; r < numRows; r++) {
+        if (sheetData[r][sidCol] == sid) {
+            targetRow = r;
             break;
         }
     }
@@ -522,63 +620,39 @@ void updateAttendanceRow() {
         return;
     }
 
-    cout << "\nStudentID: " << sid << endl;
-    cout << "Name: " << sheetData[targetRow][1] << endl;
-    cout << "Status: " << sheetData[targetRow][2] << endl;
+    cout << "\nUpdating row for StudentID " << sid << endl;
 
-    cout << "\nWhat would you like to update?\n";
-    cout << "1. Name\n";
-    cout << "2. Status\n";
-    cout << "Enter choice: ";
-    
-    cin >> choice;
-    
-    while (cin.fail() || (choice != 1 && choice != 2)) {
-        cin.clear();
-        cin.ignore(1000, '\n');
-        cout << "Error: Invalid choice. Enter 1 or 2: ";
-        cin >> choice;
-    }
-    cin.ignore();
+    for (int col = 0; col < numColumns; col++) {
+        cout << columnNames[col] << " [" << sheetData[targetRow][col] << "]: ";
+        string newValue;
+        getline(cin, newValue);
 
-    if (choice == 1) {
-        while (true) {
-            cout << "Enter new Name: ";
-            getline(cin, newName);
+        if (newValue.empty()) continue; // Keep old data if blank
 
-            if (!isValidText(newName)) {
-                cout << "Error: Invalid TEXT value. Please enter text.\n";
-                continue;
+        if (columnTypes[col] == "INT") {
+            while (!isValidInt(newValue)) {
+                cout << "Please enter a valid number (press Enter to skip): ";
+                getline(cin, newValue);
+                if (newValue.empty()) break;
             }
-            
-            sheetData[targetRow][1] = newName;
-            break;
+            if (newValue.empty()) continue;
         }
-    }
-    else if (choice == 2) {
-        while (true) {
-            cout << "Enter new Status: ";
-            getline(cin, newStatus);
-
-            if (!isValidInt(newStatus)) {
-                cout << "Error: Invalid INT value. Please enter 0 or 1.\n";
-                continue;
+        else if (columnTypes[col] == "TEXT") {
+            while (!isValidText(newValue)) {
+                cout << "Please enter a valid text (press Enter to skip): ";
+                getline(cin, newValue);
+                if (newValue.empty()) break;
             }
-
-            if (newStatus != "0" && newStatus != "1") {
-                cout << "Error: Status must be 0 or 1.\n";
-                continue;
-            }
-
-            sheetData[targetRow][2] = newStatus;
-            break;
+            if (newValue.empty()) continue;
         }
+
+        sheetData[targetRow][col] = newValue;
     }
 
-    cout << "\nRow updated successfully.\n";
+    cout << "\nRow updated successfully!\n";
+    displayCurrentSheet();
 
-    cout << "\nUpdated Sheet:\n";
-    printSheetRawCSV();
+    saveCSVfile(currentFilename);
 }
 
 void viewTermName() {
@@ -610,7 +684,7 @@ string showExistingFiles(int sheet){
     return loadingFileName;
 }
 
-void editSheetMenuM2() {
+void editSheetMenuM2(string currentFilename) {
     while (true) {
         int choice;
         cout << "\n-------------------------------------------\n";
@@ -620,8 +694,9 @@ void editSheetMenuM2() {
         cout << "2. Display Current Sheet\n";
         cout << "3. Update Attendance Row\n";
         cout << "4. Delete Attendance Row\n";
-        cout << "5. Count Rows\n";
-        cout << "6. Exit to Main Menu\n\n";
+        cout << "5. Insert New Attendance Row\n";
+        cout << "6. Count Rows\n";
+        cout << "7. Exit to Main Menu\n\n";
         cout << "Please Enter Your Choice: ";
 
         cin >> choice;
@@ -640,15 +715,18 @@ void editSheetMenuM2() {
             displayCurrentSheet();
         }
         else if (choice == 3) {
-            updateAttendanceRow();
+            updateAttendanceRow(currentFilename);
         }
         else if (choice == 4) {
-            deleteAttendanceRow();
+            deleteAttendanceRow(currentFilename);
         }
         else if (choice == 5) {
-            countRowsOutput();
+            insertRowM2(currentFilename);
         }
         else if (choice == 6) {
+            countRowsOutput();
+        }
+        else if (choice == 7) {
             return;
         }
         else {
@@ -658,13 +736,12 @@ void editSheetMenuM2() {
 }
 
 // Deletes an attendance row based on StudentID
-// Rows below the deleted record are shifted up
-void deleteAttendanceRow() {
+void deleteAttendanceRow(string currentFilename) {
     cout << "\n-------------------------------------------\n";
     cout << "Delete Attendance Row\n";
     cout << "-------------------------------------------\n";
 
-    int sidCol = findStudentIdCol(); // Find the column that containts StudentID
+    int sidCol = findStudentIdCol();
     if (sidCol == -1) {
         cout << "Error: StudentID column not found.\n";
         return;
@@ -672,7 +749,7 @@ void deleteAttendanceRow() {
 
     string sid = getIntInputLine("Enter StudentID to delete: ");
 
-    int targetRow = -1; // Search for matching row
+    int targetRow = -1;
     for (int r = 0; r < numRows; r++) {
         if (sheetData[r][sidCol] == sid) {
             targetRow = r;
@@ -686,7 +763,7 @@ void deleteAttendanceRow() {
     }
 
     // Shift rows upward to remove the selected row
-    for (int r = targetRow; r < numRows - 1; r++) { 
+    for (int r = targetRow; r < numRows - 1; r++) {
         for (int c = 0; c < numColumns; c++) {
             sheetData[r][c] = sheetData[r + 1][c];
         }
@@ -702,6 +779,8 @@ void deleteAttendanceRow() {
 
     cout << "\nUpdated Sheet:\n";
     printSheetRawCSV();
+
+    saveCSVfile(currentFilename);
 }
 
 void countRowsOutput() {
