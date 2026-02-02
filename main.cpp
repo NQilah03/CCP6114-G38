@@ -49,6 +49,7 @@ string showExistingFiles(int);
 void editSheetMenuM2();
 void deleteAttendanceRow();
 void countRowsOutput();
+void updateAttendanceRow();
 
 // File functions
 int splitLine(string line, string tokens[], int maxTokens);
@@ -59,7 +60,7 @@ void readDataFromFile(string filename);
 // Display functions
 void MainMenuM1();
 int MainMenuM2();
-void M2MenuChoice(int, int);
+void M2MenuChoice(int choice, int sheet);
 void viewSheetCSV();
 void printSheetRawCSV();
 void displayCurrentSheet();
@@ -247,42 +248,67 @@ void createSheet() {
     getline(cin, sheetName);
     cout << "Attendance sheet \"" << sheetName << "\" created successfully." << endl << endl;
 
-    do {
-        cout << "Define number of columns (max 10): ";
-        cin >> numColumns;
-
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Invalid INT value. Please enter a number.\n";
-            numColumns = 0;
-        }
-        else if (numColumns < 1 || numColumns > MAX_COLUMNS) {
-            cout << "Invalid INT value. Please enter a value between 1 and "
-                 << MAX_COLUMNS << ".\n";
-        }
-
-    } while (numColumns < 1 || numColumns > MAX_COLUMNS);
-
-    cin.ignore();
-
-    // loop through each column and get name and type
-    for (int i = 0; i < numColumns; i++) {
-        cout << "Enter column " << (i + 1) << " name: ";
-        getline(cin, columnNames[i]);
-
-        do {
-            cout << "Enter column " << (i + 1) << " type (INT or TEXT): ";
-            getline(cin, columnTypes[i]);
-
-            if (columnTypes[i] != "INT" && columnTypes[i] != "TEXT") {
-                cout << "Invalid type. Please enter INT or TEXT.\n";
-            }
-        } while (columnTypes[i] != "INT" && columnTypes[i] != "TEXT");
-    }
+    numColumns = 3;
+    
+    // fixed columns for milestone 2
+    columnNames[0] = "StudentID";
+    columnTypes[0] = "INT";
+    
+    columnNames[1] = "Name";
+    columnTypes[1] = "TEXT";
+    
+    columnNames[2] = "Status";
+    columnTypes[2] = "INT";
 
     cout << "Sheet structure created successfully." << endl << endl;
 }
+
+void createNewAttendanceSheet(){
+    int choice;
+
+    cout << "============================================\n";
+    cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
+    cout << "============================================\n";
+
+    createSheet();
+    insertRow();
+
+    while(true)
+    {
+        MainMenuM1();
+        cout << "\nPlease Enter Your Choice: ";
+        cin >> choice;
+
+        while (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Error: Invalid input. Please enter a valid number.\n\n";
+            cin >> choice;
+        }
+        cin.ignore();
+
+        switch (choice)
+        {
+        case 1:
+            insertRow();
+            break;
+
+        case 2:
+            viewSheetCSV();
+            break;
+
+        case 3:
+            createCSVfile(sheetName);
+            return;
+
+        default:
+            cout << "\nError: Invalid menu choice. Please try again.\n\n";
+            break;
+        }
+    }
+}
+
 
 void insertRow() {
     string input;
@@ -297,27 +323,51 @@ void insertRow() {
             return;
         }
 
-        for (int col = 0; col < numColumns; col++) {
-            while (true){
-                cout << "Enter " << columnNames[col] << ": ";
-                getline(cin, input);
+        // Get StudentID
+        while (true) {
+            cout << "Enter StudentID: ";
+            getline(cin, input);
 
-                if (columnTypes[col] == "INT") {
-                    if (!isValidInt(input)) {
-                        cout << "Error: Invalid INT value. Please enter a number.\n";
-                        continue;
-                    }
-                }
-                else if (columnTypes[col] == "TEXT") {
-                    if (!isValidText(input)) {
-                        cout << "Error: Invalid TEXT value. Please enter text.\n";
-                        continue;
-                    }
-                }
-
-                sheetData[numRows][col] = input;
-                break;
+            if (!isValidInt(input)) {
+                cout << "Error: Invalid INT value. Please enter a number.\n";
+                continue;
             }
+
+            sheetData[numRows][0] = input;
+            break;
+        }
+
+        // Get Name 
+        while (true) {
+            cout << "Enter Name: ";
+            getline(cin, input);
+
+            if (!isValidText(input)) {
+                cout << "Error: Invalid TEXT value. Please enter text.\n";
+                continue;
+            }
+
+            sheetData[numRows][1] = input;
+            break;
+        }
+
+        // Get Status
+        while (true) {
+            cout << "Enter Status (0 or 1): ";
+            getline(cin, input);
+
+            if (!isValidInt(input)) {
+                cout << "Error: Invalid INT value. Please enter 0 or 1.\n";
+                continue;
+            }
+
+            if (input != "0" && input != "1") {
+                cout << "Error: Status must be 0 or 1.\n";
+                continue;
+            }
+
+            sheetData[numRows][2] = input;
+            break;
         }
 
         numRows++;
@@ -444,53 +494,94 @@ void M2MenuChoice(int choice, int sheet){
     }
 }
 
-void createNewAttendanceSheet(){
-    int choice;
+void updateAttendanceRow() {
+    cout << "\n-------------------------------------------\n";
+    cout << "Update Attendance Row\n";
+    cout << "-------------------------------------------\n";
+    int sidCol, targetRow, choice;
+    string sid, newName, newStatus;
 
-    cout << "============================================\n";
-    cout << "  STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
-    cout << "============================================\n";
+    sidCol = findStudentIdCol();
+    if (sidCol == -1) {
+        cout << "Error: StudentID column not found.\n";
+        return;
+    }
 
-    createSheet();
-    insertRow();
+    sid = getIntInputLine("Enter StudentID to update: ");
 
-    while(true)
-    {
-        MainMenuM1();
-        cout << "\nPlease Enter Your Choice: ";
-        cin >> choice;
-
-        while (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "Error: Invalid input. Please enter a valid number.\n\n";
-            cin >> choice;
-        }
-        cin.ignore();
-
-        switch (choice)
-        {
-        case 1:
-            insertRow();
-            break;
-
-        case 2:
-            viewSheetCSV();
-            break;
-
-        case 3:
-            createCSVfile(sheetName);
-            return;
-
-        default:
-            cout << "\nError: Invalid menu choice. Please try again.\n\n";
+    targetRow = -1;
+    for (int i = 0; i < numRows; i++) {
+        if (sheetData[i][sidCol] == sid) {
+            targetRow = i;
             break;
         }
     }
+
+    if (targetRow == -1) {
+        cout << "Error: StudentID does not exist.\n";
+        return;
+    }
+
+    cout << "\nStudentID: " << sid << endl;
+    cout << "Name: " << sheetData[targetRow][1] << endl;
+    cout << "Status: " << sheetData[targetRow][2] << endl;
+
+    cout << "\nWhat would you like to update?\n";
+    cout << "1. Name\n";
+    cout << "2. Status\n";
+    cout << "Enter choice: ";
+    
+    cin >> choice;
+    
+    while (cin.fail() || (choice != 1 && choice != 2)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Error: Invalid choice. Enter 1 or 2: ";
+        cin >> choice;
+    }
+    cin.ignore();
+
+    if (choice == 1) {
+        while (true) {
+            cout << "Enter new Name: ";
+            getline(cin, newName);
+
+            if (!isValidText(newName)) {
+                cout << "Error: Invalid TEXT value. Please enter text.\n";
+                continue;
+            }
+            
+            sheetData[targetRow][1] = newName;
+            break;
+        }
+    }
+    else if (choice == 2) {
+        while (true) {
+            cout << "Enter new Status: ";
+            getline(cin, newStatus);
+
+            if (!isValidInt(newStatus)) {
+                cout << "Error: Invalid INT value. Please enter 0 or 1.\n";
+                continue;
+            }
+
+            if (newStatus != "0" && newStatus != "1") {
+                cout << "Error: Status must be 0 or 1.\n";
+                continue;
+            }
+
+            sheetData[targetRow][2] = newStatus;
+            break;
+        }
+    }
+
+    cout << "\nRow updated successfully.\n";
+
+    cout << "\nUpdated Sheet:\n";
+    printSheetRawCSV();
 }
 
-void ViewTermName() {
+void viewTermName() {
     if (termName.empty()) {
         cout << "No term created yet.\n";
     } else {
@@ -527,9 +618,10 @@ void editSheetMenuM2() {
         cout << "-------------------------------------------\n";
         cout << "1. View Term Name\n";
         cout << "2. Display Current Sheet\n";
-        cout << "3. Delete Attendance Row\n";
-        cout << "4. Count Rows\n";
-        cout << "5. Exit to Main Menu\n\n";
+        cout << "3. Update Attendance Row\n";
+        cout << "4. Delete Attendance Row\n";
+        cout << "5. Count Rows\n";
+        cout << "6. Exit to Main Menu\n\n";
         cout << "Please Enter Your Choice: ";
 
         cin >> choice;
@@ -548,12 +640,15 @@ void editSheetMenuM2() {
             displayCurrentSheet();
         }
         else if (choice == 3) {
-            deleteAttendanceRow();
+            updateAttendanceRow();
         }
         else if (choice == 4) {
-            countRowsOutput();
+            deleteAttendanceRow();
         }
         else if (choice == 5) {
+            countRowsOutput();
+        }
+        else if (choice == 6) {
             return;
         }
         else {
