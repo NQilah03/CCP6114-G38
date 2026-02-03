@@ -21,17 +21,17 @@
 #include <string>
 #include <cctype>
 #include <fstream>
+#include <vector>
 using namespace std;
 
 const int MAX_COLUMNS = 10;
 const int MAX_ROWS = 100;
-const int MAX_SHEET = 100;
 
 // Global Variables
 string termName = "";
 string columnNames[MAX_COLUMNS];
 string columnTypes[MAX_COLUMNS];
-string database[MAX_SHEET];
+vector<string> database;
 string sheetData[MAX_ROWS][MAX_COLUMNS];
 int numColumns = 0;
 int numRows = 0;
@@ -52,11 +52,12 @@ void updateAttendanceRow(string);
 void insertRowM2(string);
 
 // File functions
-int splitLine(string line, string tokens[], int maxTokens);
+int splitLine(string line, string contents[], int maxContents);
 void loadAttendanceFile(string filename);
 void createCSVfile(string);
 void readDataFromFile(string filename);
 void saveCSVfile(string filename);
+string updateFileName(string filename);
 
 // Display functions
 void MainMenuM1();
@@ -116,22 +117,22 @@ bool isValidText(string value) {
 }
 
 // Splits a CSV line by comma
-int splitLine(string line, string tokens[], int maxTokens) {
+int splitLine(string line, string contents[], int maxContents) {
     int count = 0;
-    string token = "";
+    string content = "";
 
     // Go through each character in the line
     for (int i = 0; i < line.length(); i++) {
         if (line[i] == ',') {
-            tokens[count] = token;
+            contents[count] = content;
             count++;
-            token = "";
+            content = "";
         } else {
-            token = token + line[i];
+            content = content + line[i];
         }
     }
 
-    tokens[count] = token;
+    contents[count] = content;
     count++;
 
     return count;
@@ -158,25 +159,22 @@ void loadAttendanceFile(string filename) {
     numColumns = 0;
 
     string line;
-    string tokens[MAX_COLUMNS];
+    string contents[MAX_COLUMNS];
 
     // Read header
     if (getline(f, line)) {
-        numColumns = splitLine(line, tokens, MAX_COLUMNS);
+        numColumns = splitLine(line, contents, MAX_COLUMNS);
         for (int i = 0; i < numColumns; i++) {
-            columnNames[i] = tokens[i];
+            columnNames[i] = contents[i];
         }
     }
 
     // Read data rows
     while (getline(f, line) && numRows < MAX_ROWS) {
-        int cols = splitLine(line, tokens, MAX_COLUMNS);
-
-        // First column must be StudentID
-        if (cols <= 0 || !isValidInt(tokens[0])) continue;
+        int cols = splitLine(line, contents, MAX_COLUMNS);
 
         for (int c = 0; c < numColumns; c++) {
-            sheetData[numRows][c] = (c < cols) ? tokens[c] : "";
+            sheetData[numRows][c] = (c < cols) ? contents[c] : "";
         }
         numRows++;
     }
@@ -229,13 +227,25 @@ void createCSVfile(string sheetName){
     outputFile.close();
 }
 
+//function to change file name for updated file
+string updateFileName(string filename){
+    string toRemove = ".csv";
+    size_t position = filename.find(toRemove);
+    if (position != string::npos) {
+        filename.erase(position, toRemove.length());
+    }
+    string newFileName = filename + "_Updated.csv";
+    return newFileName;
+}
+
 // Function to save updated or deleted data to file
 void saveCSVfile(string filename) {
     ofstream outputFile;
-    outputFile.open(filename);
+    string newFileName = updateFileName(filename);
+    outputFile.open(newFileName);
 
     if(!outputFile){
-        cout << "\nError opening the file \"" << filename << "\"." << endl;
+        cout << "\nError opening the file \"" << newFileName << "\"." << endl;
     }
     else{
         // Header (CSV)
@@ -254,8 +264,8 @@ void saveCSVfile(string filename) {
             outputFile << "\n";
         }
         cout << "\nChanges saved to file successfully.\n";
+        database.push_back(newFileName);
     }
-
     outputFile.close();
 }
 
@@ -563,7 +573,7 @@ int MainMenuM2(){
 void M2MenuChoice(int choice, int sheet){
     while(choice == 1){ //1.Create new attendance sheet
         string sheetName = createNewAttendanceSheet();
-        database[sheet] = sheetName + ".csv";
+        database.push_back(sheetName + ".csv");
         sheet++;
         choice = MainMenuM2();                           
     }
@@ -694,7 +704,7 @@ void editSheetMenuM2(string currentFilename) {
         cout << "4. Delete Attendance Row\n";
         cout << "5. Insert New Attendance Row\n";
         cout << "6. Count Rows\n";
-        cout << "7. Exit to Main Menu\n\n";
+        cout << "7. Save File and Exit\n\n";
         cout << "Please Enter Your Choice: ";
 
         cin >> choice;
@@ -725,6 +735,9 @@ void editSheetMenuM2(string currentFilename) {
             countRowsOutput();
         }
         else if (choice == 7) {
+            cout << "\n-------------------------------------------\n";
+            cout << "Writing updated sheet to output file...\n";
+            cout << "Output saved as: " << updateFileName(currentFilename) << endl;
             return;
         }
         else {
