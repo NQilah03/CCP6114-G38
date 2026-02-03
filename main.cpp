@@ -10,10 +10,10 @@
 // Member_4: 252UC243DY | QAISARAH BINTI SHAMSUL AZRAN | QAISARAH.SHAMSUL.AZRAN1@student.mmu.edu.my | 0134130145
 // *********************************************************
 // Task Distribution
-// Member_1:
-// Member_2:
-// Member_3:
-// Member_4:
+// Member_1: delete row functions
+// Member_2: database functions
+// Member_3: update row functions
+// Member_4: filing functions
 // *********************************************************
 
 #include <iostream>
