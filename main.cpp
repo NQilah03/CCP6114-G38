@@ -72,6 +72,7 @@ bool isValidInt(string value);
 bool isValidText(string value);
 int findStudentIdCol();
 string getIntInputLine(string prompt);
+void getColumnTypes();
 
 
 int main()
@@ -183,9 +184,7 @@ void loadAttendanceFile(string filename) {
     f.close();
 
     // Set fixed column types for Milestone 2
-    columnTypes[0] = "INT";  // StudentID
-    columnTypes[1] = "TEXT"; // Name
-    columnTypes[2] = "INT";  // Status
+    getColumnTypes();
 }
 
 //Function to save the attendance data into a csv file.
@@ -282,23 +281,46 @@ void readDataFromFile(string filename){
     readFile.close();
 }
 
+
 string createSheet() {
     string sheetName;
     cout << "\nEnter attendance sheet name: ";
     getline(cin, sheetName);
     cout << "Attendance sheet \"" << sheetName << "\" created successfully." << endl << endl;
 
-    numColumns = 3;
-    
-    // fixed columns for milestone 2
-    columnNames[0] = "StudentID";
-    columnTypes[0] = "INT";
-    
-    columnNames[1] = "Name";
-    columnTypes[1] = "TEXT";
-    
-    columnNames[2] = "Status";
-    columnTypes[2] = "INT";
+    do {
+        cout << "Define number of columns (max 10): ";
+        cin >> numColumns;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Invalid INT value. Please enter a number.\n";
+            numColumns = 0;
+        }
+        else if (numColumns < 1 || numColumns > MAX_COLUMNS) {
+            cout << "Invalid INT value. Please enter a value between 1 and "
+                 << MAX_COLUMNS << ".\n";
+        }
+
+    } while (numColumns < 1 || numColumns > MAX_COLUMNS);
+
+    cin.ignore();
+
+    // loop through each column and get name and type
+    for (int i = 0; i < numColumns; i++) {
+        cout << "Enter column " << (i + 1) << " name: ";
+        getline(cin, columnNames[i]);
+
+        do {
+            cout << "Enter column " << (i + 1) << " type (INT or TEXT): ";
+            getline(cin, columnTypes[i]);
+
+            if (columnTypes[i] != "INT" && columnTypes[i] != "TEXT") {
+                cout << "Invalid type. Please enter INT or TEXT.\n";
+            }
+        } while (columnTypes[i] != "INT" && columnTypes[i] != "TEXT");
+    }
 
     cout << "Sheet structure created successfully." << endl << endl;
     return sheetName;
@@ -365,51 +387,27 @@ void insertRow() {
             return;
         }
 
-        // Get StudentID
-        while (true) {
-            cout << "Enter StudentID: ";
-            getline(cin, input);
+        for (int col = 0; col < numColumns; col++) {
+            while (true){
+                cout << "Enter " << columnNames[col] << ": ";
+                getline(cin, input);
 
-            if (!isValidInt(input)) {
-                cout << "Error: Invalid INT value. Please enter a number.\n";
-                continue;
+                if (columnTypes[col] == "INT") {
+                    if (!isValidInt(input)) {
+                        cout << "Error: Invalid INT value. Please enter a number.\n";
+                        continue;
+                    }
+                }
+                else if (columnTypes[col] == "TEXT") {
+                    if (!isValidText(input)) {
+                        cout << "Error: Invalid TEXT value. Please enter text.\n";
+                        continue;
+                    }
+                }
+
+                sheetData[numRows][col] = input;
+                break;
             }
-
-            sheetData[numRows][0] = input;
-            break;
-        }
-
-        // Get Name 
-        while (true) {
-            cout << "Enter Name: ";
-            getline(cin, input);
-
-            if (!isValidText(input)) {
-                cout << "Error: Invalid TEXT value. Please enter text.\n";
-                continue;
-            }
-
-            sheetData[numRows][1] = input;
-            break;
-        }
-
-        // Get Status
-        while (true) {
-            cout << "Enter Status (0 or 1): ";
-            getline(cin, input);
-
-            if (!isValidInt(input)) {
-                cout << "Error: Invalid INT value. Please enter 0 or 1.\n";
-                continue;
-            }
-
-            if (input != "0" && input != "1") {
-                cout << "Error: Status must be 0 or 1.\n";
-                continue;
-            }
-
-            sheetData[numRows][2] = input;
-            break;
         }
 
         numRows++;
@@ -810,5 +808,19 @@ string getIntInputLine(string prompt) {
             continue;
         }
         return s;
+    }
+}
+
+void getColumnTypes() {
+    // looop through column
+    for (int col = 0; col < numColumns; col++) {
+        columnTypes[col] = "INT";
+        // loop through rows
+        for (int row = 0; row < numRows; row++) {
+            if (!isValidInt(sheetData[row][col])) {
+                columnTypes[col] = "TEXT";
+                break;
+            }
+        }
     }
 }
